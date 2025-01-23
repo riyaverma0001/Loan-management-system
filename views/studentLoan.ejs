@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>Student Loan Application</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4 relative">
+
+    <!-- Back Button -->
+    <a href="/user/dashboard" class="absolute top-4 right-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+        Back to Dashboard
+    </a>
+
+    <div class="w-full max-w-md bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
+        <h1 class="text-xl font-bold text-center text-gray-800 mb-4">Student Loan Application</h1>
+        <!-- Flash Messages -->
+    <% if (successMessage && successMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            <%= successMessage %>
+        </div>
+    <% } %>
+
+    <% if (errorMessage && errorMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <% if (infoMessage && infoMessage.length > 0) { %>
+        <div 
+            class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" 
+            role="alert"
+        >
+            <%= infoMessage %>
+        </div>
+    <% } %>
+
+        <!-- Flash Messages -->
+        <div id="flash-message" class="hidden mb-4 p-4 rounded-lg"></div>
+
+        <form id="loan-form" action="/apply-loan" method="POST" class="space-y-4">
+            <!-- Hidden field for userId -->
+            <!-- <input type="hidden" name="userId" value="674413fae1430a4937418e4b"> -->
+            <input type="hidden" name="userId" value="<%= userId %>">
+
+            <!-- Student Name -->
+            <div>
+                <label for="student-name" class="block text-gray-700 font-semibold">Student Name</label>
+                <input type="text" id="student-name" name="studentName" required
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- College Name -->
+            <div>
+                <label for="college-name" class="block text-gray-700 font-semibold">School/College</label>
+                <input type="text" id="college-name" name="collegeName" required
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Grade -->
+            <div>
+                <label for="grade" class="block text-gray-700 font-semibold">Grade</label>
+                <input type="text" id="grade" name="grade" required
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Amount -->
+            <div>
+                <label for="amount" class="block text-gray-700 font-semibold">Amount</label>
+                <input type="number" id="amount" name="amount" required
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <h2 class="text-lg font-semibold mb-6">Choose EMI Plan</h2>
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                <thead class="bg-blue-500">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-white">EMI Plan</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-white">Interest</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-white">Total Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                            <input type="checkbox" id="emi-3month" name="emiPlan" value="3month">
+                            3 Months
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">5%</td>
+                        <td id="total-3month" class="px-6 py-4 text-sm text-gray-900"></td>
+                    </tr>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                            <input type="checkbox" id="emi-6month" name="emiPlan" value="6month">
+                            6 Months
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">10%</td>
+                        <td id="total-6month" class="px-6 py-4 text-sm text-gray-900"></td>
+                    </tr>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                            <input type="checkbox" id="emi-12month" name="emiPlan" value="12month">
+                            12 Months
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">13%</td>
+                        <td id="total-12month" class="px-6 py-4 text-sm text-gray-900"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center">
+                <button type="submit"
+                    class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Get elements
+        const amountInput = document.getElementById('amount');
+        const emi3month = document.getElementById('emi-3month');
+        const emi6month = document.getElementById('emi-6month');
+        const emi12month = document.getElementById('emi-12month');
+    
+        const total3Month = document.getElementById('total-3month');
+        const total6Month = document.getElementById('total-6month');
+        const total12Month = document.getElementById('total-12month');
+    
+        // Function to calculate total cost for all plans
+        function calculateTotalCost() {
+            const amount = parseFloat(amountInput.value);
+    
+            if (isNaN(amount) || amount <= 0) {
+                total3Month.textContent = '';
+                total6Month.textContent = '';
+                total12Month.textContent = '';
+                return;
+            }
+    
+            const interestRates = { '3month': 0.05, '6month': 0.10, '12month': 0.13 };
+
+            total3Month.textContent = `₹${(amount * (1 + interestRates['3month'])).toFixed(2)}`;
+            total6Month.textContent = `₹${(amount * (1 + interestRates['6month'])).toFixed(2)}`;
+            total12Month.textContent = `₹${(amount * (1 + interestRates['12month'])).toFixed(2)}`;
+        }
+
+        // Add event listeners
+        amountInput.addEventListener('input', calculateTotalCost);
+
+        // Restrict to one checkbox selected at a time
+        document.querySelectorAll('input[name="emiPlan"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    document.querySelectorAll('input[name="emiPlan"]').forEach(otherCheckbox => {
+                        if (otherCheckbox !== this) otherCheckbox.checked = false;
+                    });
+                }
+                calculateTotalCost();
+            });
+        });
+
+        // Form validation
+        document.getElementById('loan-form').addEventListener('submit', function (e) {
+            const selectedPlan = document.querySelector('input[name="emiPlan"]:checked');
+            if (!selectedPlan) {
+                e.preventDefault();
+                alert('Please select an EMI plan.');
+            }
+        });
+    </script>
+<script src="../keepAlive.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>View ID Verification</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4 relative">
+
+    <!-- Button to go back to the previous page -->
+    <div class="absolute top-6 left-6">
+        <button onclick="goBack()" 
+                class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition duration-300">
+            Go Back
+        </button>
+    </div>
+
+    <div class="w-full max-w-2xl bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Uploaded ID Images by: <%= userName %> </h1>
+        
+        <% if (frontImageUrl || backImageUrl) { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% if (frontImageUrl) { %>
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-700 mb-2">Front Image:</h2>
+                        <img src="<%= frontImageUrl %>" alt="Front ID" class="w-full h-auto rounded-lg border border-gray-300 shadow-md">
+                    </div>
+                <% } %>
+                <% if (backImageUrl) { %>
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-700 mb-2">Back Image:</h2>
+                        <img src="<%= backImageUrl %>" alt="Back ID" class="w-full h-auto rounded-lg border border-gray-300 shadow-md">
+                    </div>
+                <% } %>
+            </div>
+        <% } else { %>
+            <p class="text-center text-gray-600">No ID images have been uploaded.</p>
+        <% } %>
+    </div>
+
+    <!-- JavaScript to handle the "Go Back" button -->
+    <script>
+        function goBack() {
+            // Check if history is available
+            if (window.history.length > 1) {
+                window.history.back();  // Go back to the previous page
+            } else {
+                // If no history, redirect to a default page (e.g., the user list or homepage)
+                window.location.href = '/user/dashboard';  // Modify this URL as per your app's routing
+            }
+        }
+    </script>
+<script src="../keepAlive.js"></script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+mongo string:
+mongodb+srv://riyaavermaa0001:mainproject@cluster0.1nxfo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0

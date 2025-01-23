@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>Declined Loans</title>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-10 relative">
+
+        <!-- Back to Dashboard Button -->
+        <div class="absolute top-5 right-5">
+            <a href="/admin" class="inline-block bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-5 py-3 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">
+                Back to Dashboard
+            </a>
+        </div>
+
+        <h1 class="text-3xl font-semibold text-red-600 mb-8">
+            Declined Loans
+        </h1>
+
+        <!-- Table -->
+        <div class="overflow-hidden rounded-lg shadow-lg border border-gray-200">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gradient-to-r from-red-600 to-red-500 text-white">
+                    <tr class="text-left text-sm font-medium uppercase tracking-wide">
+                        <th class="py-4 px-6">Username</th>
+                        <th class="py-4 px-6">Amount</th>
+                        <th class="py-4 px-6">EMI Plan</th>
+                        <th class="py-4 px-6">Monthly EMI</th>
+                        <th class="py-4 px-6">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (declinedLoans.length > 0) { %>
+                        <% declinedLoans.forEach(loan => { %>
+                            <tr class="even:bg-gray-50 hover:bg-red-50 transition duration-200">
+                                <td class="py-4 px-6"><%= loan.studentName %></td>
+                                <td class="py-4 px-6">
+                                    $<%= loan.amount.toLocaleString() %>
+                                </td>
+                                <td class="py-4 px-6"><%= loan.emiPlan %></td>
+                                <td class="py-4 px-6">
+                                    $<%= loan.monthlyEMI.toLocaleString() %>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-block px-3 py-1 text-sm font-semibold bg-red-100 text-red-600 rounded-full">
+                                        <%= loan.status %>
+                                    </span>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="py-6 px-6 text-center text-gray-500">
+                                No declined loans found.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

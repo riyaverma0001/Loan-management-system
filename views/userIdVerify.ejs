@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>User ID Verification</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+    <form action="/user/id-verify" method="post" enctype="multipart/form-data" class="w-full max-w-lg bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">KYC Verification</h1>
+
+        <!-- Flash Messages -->
+        <% if (successMessage && successMessage.length > 0) { %>
+            <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <%= successMessage %>
+            </div>
+        <% } %>
+
+        <% if (errorMessage && errorMessage.length > 0) { %>
+            <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
+        <% if (infoMessage && infoMessage.length > 0) { %>
+            <div 
+                class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" 
+                role="alert"
+            >
+                <%= infoMessage %>
+            </div>
+        <% } %>
+
+        <!-- Full Name -->
+        
+
+        <!-- Document Type -->
+        <div class="mb-4">
+            <label for="documentType" class="block mb-2 text-sm font-medium text-gray-900">Document Type</label>
+            <select name="documentType" id="documentType" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <option value="">Select Document Type</option>
+                <option value="aadhaar">Aadhaar Card</option>
+                <option value="pan">PAN Card</option>
+            </select>
+        </div>
+
+        <!-- Upload Document Front and Back -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+            <!-- Front Image -->
+            <div>
+                <label for="documentFront" class="block mb-2 text-sm font-medium text-gray-900">Upload Front Image</label>
+                <input type="file" name="documentFront" id="documentFront" required accept=".jpg,.jpeg,.png,.pdf" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+            </div>
+
+            <!-- Back Image -->
+            <div>
+                <label for="documentBack" class="block mb-2 text-sm font-medium text-gray-900">Upload Back Image</label>
+                <input type="file" name="documentBack" id="documentBack" required accept=".jpg,.jpeg,.png,.pdf" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5">
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">Submit</button>
+    </form>
+    <script src="../keepAlive.js"></script>
+</body>
+</html>

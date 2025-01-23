@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>Admin Login</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+
+<form action="/admin/login" method="post" class="w-full max-w-lg bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Admin Login</h1>
+
+    <!-- Flash Messages -->
+    <% if (successMessage && successMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            <%= successMessage %>
+        </div>
+    <% } %>
+
+    <% if (errorMessage && errorMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <!-- Email Field -->
+    <div class="mb-4">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your email</label>
+        <input type="email" id="email" name="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="name@domain.com" required />
+    </div>
+
+    <!-- Password Field -->
+    <div class="mb-4">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Your password</label>
+        <input type="password" id="password" name="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
+    </div>
+
+    <!-- Login Button -->
+    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">Login</button>
+
+    <!-- Link to Signup -->
+    <p class="mt-4 text-center text-sm text-gray-600">
+        Don't have an account? <a href="/admin/signup" class="text-blue-600 hover:underline">Signup</a>
+    </p>
+</form>
+<script src="../keepAlive.js"></script>
+</body>
+</html>

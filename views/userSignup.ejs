@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>User Registration</title>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+
+<form action="/user/signup" method="post" class="w-full max-w-md bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">User Registration</h1>
+
+    <!-- Flash Messages -->
+    <% if (successMessage && successMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            <%= successMessage %>
+        </div>
+    <% } %>
+
+    <% if (errorMessage && errorMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <!-- Name Field -->
+    <div class="mb-3">
+        <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Your Name</label>
+        <input type="text" id="name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required />
+    </div>
+
+    <!-- Email Field -->
+    <div class="mb-3">
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your email</label>
+        <input type="email" id="email" name="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="name@domain.com" required />
+    </div>
+
+    <!-- Phone Number with Country Code -->
+    <div class="mb-3 flex items-center space-x-2">
+        <label for="phone" class="block text-sm font-medium text-gray-900 whitespace-nowrap">Your phone number</label>
+        <div class="flex space-x-2 w-full">
+            <!-- Country Code Dropdown -->
+            <select id="country_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-20 p-2" name="country_code" required>
+                <option value="+1">+1 (US)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+91">+91 (IN)</option>
+                <option value="+61">+61 (AU)</option>
+                <option value="+49">+49 (DE)</option>
+            </select>
+            <!-- Phone Number Input -->
+            <input type="tel" id="phone" name="phone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" placeholder="123-456-7890" required />
+        </div>
+    </div>
+
+    <!-- Password Field -->
+    <div class="mb-3">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Your password</label>
+        <input type="password" id="password" name="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Confirm your password</label>
+        <input type="password" id="password" name="confirmPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2" required />
+    </div>
+
+    <!-- Terms and Conditions -->
+    <div class="mb-3 flex items-center">
+        <input id="terms" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required />
+        <label for="terms" class="ml-2 text-sm text-gray-900">I agree with the <a href="#" class="text-blue-600 hover:underline">terms and conditions</a></label>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">Submit</button>
+    <p class="mt-4 text-center text-sm text-gray-600">
+        Already have an account? <a href="/user/login" class="text-blue-600 hover:underline">Login</a>
+    </p>
+</form>
+<script src="../keepAlive.js"></script>
+</body>
+</html>

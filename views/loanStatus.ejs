@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Request Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+        <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Loan Request Status</h1>
+        <p class="text-lg text-gray-700 text-center">
+            Hello <span class="font-semibold"><%= loan.studentName %></span>,
+        </p>
+
+        <div class="mt-4 text-center">
+            <% if (loan.status === "Approved") { %>
+                <p class="text-xl font-bold text-green-500">Your loan request has been Approved! 🎉</p>
+                <p class="text-gray-700 mt-2">You will receive further details soon.</p>
+            <% } else if (loan.status === "Pending") { %>
+                <p class="text-xl font-bold text-yellow-500">Your loan request is Pending.</p>
+                <p class="text-gray-700 mt-2">The admin is currently reviewing your application. Please wait for an update.</p>
+            <% } else if (loan.status === "Declined") { %>
+                <p class="text-xl font-bold text-red-500">Your loan request has been Declined.</p>
+                <p class="text-gray-700 mt-2">Unfortunately, your application does not meet our requirements at this time.</p>
+            <% } %>
+        </div>
+
+        <div class="mt-6 text-center">
+            <a href="/user/dashboard" class="bg-blue-500 text-white font-medium px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300">
+                Go to Dashboard
+            </a>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Function to fetch updated loan status
+            function fetchLoanStatus() {
+                fetch('/loan-status', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the loan status displayed on the page
+                    document.getElementById('loan-status').innerText = data.status;
+                })
+                .catch(error => console.error('Error fetching loan status:', error));
+            }
+    
+            // Call this function to fetch and display the updated loan status
+            fetchLoanStatus();
+        });
+    </script>
+    <script src="../keepAlive.js"></script>
+</body>
+</html>

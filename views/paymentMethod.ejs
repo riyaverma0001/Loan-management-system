@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>Payment Method</title>
+    <style>
+        /* Custom Radio Button Style */
+        input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0; /* Light border */
+            border-radius: 50%;
+            background-color: #fff;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        input[type="radio"]:checked {
+            border-color: #3182ce; /* Blue when checked */
+            background-color: #3182ce; /* Blue background when checked */
+        }
+
+        input[type="radio"]:checked::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fff; /* White inner circle */
+        }
+
+        /* Add hover effect */
+        input[type="radio"]:hover {
+            border-color: #63b3ed; /* Light blue on hover */
+        }
+
+        label {
+            cursor: pointer;
+            font-size: 1.125rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        label:hover {
+            color: #3182ce;
+        }
+
+        /* Additional space between radio and label */
+        label span {
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+     
+    <nav class="bg-blue-600 text-white py-4">
+        
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-center text-lg font-medium">
+                <div class="text-center text-lg font-medium flex items-center justify-center space-x-2">
+                    <!-- SVG Icon -->
+                    <div class="rounded-full border-2 border-gray-500 p-2 inline-block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.485 0 4.5-2.015 4.5-4.5S14.485 3 12 3 7.5 5.015 7.5 7.5 9.515 12 12 12zM4.5 21c0-4.142 3.358-7.5 7.5-7.5s7.5 3.358 7.5 7.5H4.5z" />
+                        </svg>
+                    </div>
+                    <!-- Username -->
+                    <p class="text-4xl"><%= name %></p>
+                </div>
+                <span class="text-2xl">Welcome onboard!</span>
+            </div>
+            <div>
+                <a href="/user/pay-details" class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 text-white font-medium">
+                    Back to Payment Details
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Payment Method Section -->
+    <% if (successMessage && successMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            <%= successMessage %>
+        </div>
+    <% } %>
+
+    <% if (errorMessage && errorMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <% if (infoMessage && infoMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" role="alert">
+            <%= infoMessage %>
+        </div>
+    <% } %>
+
+   
+    
+
+    <div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+        <h3 class="text-3xl font-bold text-blue-600 mb-6 text-center">Select a Payment Method</h3>
+        
+        <div class="flex items-center justify-center space-x-8">
+            <div class="flex items-center">
+                <input type="radio" id="bank-transfer" name="payment-method" value="bank-transfer" class="mr-2">
+                <label for="bank-transfer">
+                    <span>Bank Transfer</span>
+                </label>
+            </div>
+            <div class="flex items-center">
+                <input type="radio" id="collect-cash" name="payment-method" value="collect-cash" class="mr-2">
+                <label for="collect-cash">
+                    <span>Collect Cash</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bank Transfer Form (Hidden by Default) -->
+<form id="bank-transfer-form" class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg hidden max-w-4xl mx-auto" action="/user/pay-method" method="POST">
+    <div class="space-y-4">
+        <div class="flex justify-between items-center">
+            <label for="account-holder" class="block font-medium w-1/4">Name:</label>
+            <p class="w-3/4 p-3 mt-2 bg-gray-100 rounded-lg font-medium">Payoman</p>
+        </div>
+        <div class="flex justify-between items-center">
+            <label for="account-no" class="block font-medium w-1/4">Account Number:</label>
+            <p class="w-3/4 p-3 mt-2 bg-gray-100 rounded-lg font-medium">1234567890</p>
+        </div>
+        <div class="flex justify-between items-center">
+            <label for="swift-code" class="block font-medium w-1/4">SWIFT Code:</label>
+            <p class="w-3/4 p-3 mt-2 bg-gray-100 rounded-lg font-medium">SWIFT12345</p>
+        </div>
+        <div class="flex justify-between items-center">
+            <label for="branch" class="block font-medium w-1/4">Branch:</label>
+            <p class="w-3/4 p-3 mt-2 bg-gray-100 rounded-lg font-medium">Main Branch</p>
+        </div>
+    </div>
+
+    <h3 class="text-3xl font-bold text-blue-600 mb-6 mt-8 text-center">Bank Transfer Details</h3>
+    
+    
+    <input type="hidden" name="paymentMethod" value="Bank Transfer">
+    <input type="hidden" name="name" value="<%= name %>">
+    <input type="hidden" name="totalCost" value="<%= totalCost %>">
+    <input type="hidden" name="emiPlan" value="<%= emiPlan %>">
+    <input type="hidden" name="monthlyEMI" value="<%= monthlyEMI %>">
+    <input type="hidden" name="amountPaid" value="<%= amountPaid %>">
+    <input type="hidden" name="remainingBalance" value="<%= remainingBalance %>">
+    <!-- <input type="hidden" name="paymentStatus" value="<%= paymentStatus %>"> -->
+    <div class="space-y-4">
+        <div class="flex flex-col items-start">
+            <label for="bank-name" class="block text-lg font-medium">Bank Name:</label>
+            <input type="text" id="bank-name" name="bankName" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" placeholder="Enter Bank Name" required>
+        </div>
+        <div class="flex flex-col items-start">
+            <label for="amount" class="block text-lg font-medium">Amount:</label>
+            <input type="text" id="amount" name="amount" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" placeholder="Enter Amount" value="<%= amountDue %>" readonly>
+        </div>
+        <div class="flex flex-col items-start">
+            <label for="ref-no" class="block text-lg font-medium">Reference No.:</label>
+            <input type="text" id="ref-no" name="referenceNo" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" placeholder="Enter Reference Number" required>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">Proceed</button>
+        </div>
+    </div>
+</form>
+
+
+<!-- Collect Cash Form -->
+<form id="collect-cash-form" class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg hidden max-w-4xl mx-auto" action="/user/pay-method" method="POST">
+    <input type="hidden" name="paymentMethod" value="Collect Cash">
+    <input type="hidden" name="totalCost" value="<%= totalCost %>">
+    <input type="hidden" name="emiPlan" value="<%= emiPlan %>">
+    <input type="hidden" name="amountPaid" value="<%= amountPaid %>">
+    <input type="hidden" name="remainingBalance" value="<%= remainingBalance %>">
+    <input type="hidden" name="monthlyEMI" value="<%= monthlyEMI %>">
+    <!-- <input type="hidden" name="pay" value="<%= paymentStatus %>"> -->
+    <div class="space-y-4">
+        <div class="flex flex-col items-start">
+            <label for="collect-name" class="block text-lg font-medium">Name:</label>
+            <input type="text" id="collect-name" name="name" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" value="<%= name %>" readonly>
+        </div>
+        <div class="flex flex-col items-start">
+            <label for="collect-amount" class="block text-lg font-medium">Amount:</label>
+            <input type="text" id="collect-amount" name="amount" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" value="<%= amountDue %>" readonly>
+        </div>
+        <div class="flex flex-col items-start">
+            <label for="collect-address" class="block text-lg font-medium">Address:</label>
+            <input type="text" id="collect-address" name="address" class="w-full p-3 mt-2 border-none bg-gray-100 rounded-lg" placeholder="Enter Address" required>
+        </div>
+        <div class="text-center">
+            <p class="mb-4">Additional Charge Will be Applied for Cash Payment.</p>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">Proceed</button>
+        </div>
+    </div>
+</form>
+
+    <script>
+        // Show/hide forms based on payment method selection
+        const bankTransferRadio = document.getElementById('bank-transfer');
+        const collectCashRadio = document.getElementById('collect-cash');
+        const bankTransferForm = document.getElementById('bank-transfer-form');
+        const collectCashForm = document.getElementById('collect-cash-form');
+
+        bankTransferRadio.addEventListener('change', function() {
+            if (this.checked) {
+                bankTransferForm.classList.remove('hidden');
+                collectCashForm.classList.add('hidden');
+            }
+        }); 
+
+        collectCashRadio.addEventListener('change', function() {
+            if (this.checked) {
+                collectCashForm.classList.remove('hidden');
+                bankTransferForm.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

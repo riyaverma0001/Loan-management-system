@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
+    <title>User Dashboard</title>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-500 text-white py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">User Dashboard</h1>
+            <a href="/logout" 
+               class="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-white font-medium">
+               Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <% if (successMessage && successMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            <%= successMessage %>
+        </div>
+    <% } %>
+
+    <% if (errorMessage && errorMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+            <%= errorMessage %>
+        </div>
+    <% } %>
+
+    <!-- Dashboard Content -->
+    <div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+        <h2 class="text-3xl font-bold text-blue-600 mb-6">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1) %>!</h2>
+
+        <!-- User Details -->
+        <div class="space-y-4">
+            <p class="text-lg"><strong>Email:</strong> <%= user.email %></p>
+            <p class="text-lg"><strong>Phone:</strong> <%= user.phone %></p>
+            <p class="text-lg"><strong>Status:</strong> <%= user.status %></p>
+            <p class="text-lg"><strong>Document Type:</strong> <%= user.documentType %></p>
+
+            <!-- Display KYC Status -->
+            <p class="text-lg">
+                <strong>KYC Status:</strong> 
+                <span class="<%= user.kycStatus === 'approved' ? 'text-green-600' : 'text-red-600' %> font-semibold">
+                    <%= user.kycStatus %>
+                </span>
+            </p>
+            
+            <!-- Display Loan Status -->
+            <p class="text-lg">
+                <strong>Loan Status:</strong> 
+                <span class="<%= loanStatus === 'Approved' ? 'text-green-600' : loanStatus === 'Rejected' ? 'text-red-600' : 'text-yellow-600' %> font-semibold">
+                    <%= loanStatus %>
+                </span>
+            </p>
+
+            <p class="text-lg"><strong>Account Created At:</strong> <%= user.createdAt.toLocaleString() %></p>
+        </div>
+
+    </div>
+
+    <!-- Display Loan and KYC Approval Message -->
+    <% if (user.kycStatus === 'approved' && user.loanStatus === 'approved') { %>
+        <div class="mt-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+            Loan and KYC Status both Approved!
+        </div>
+    <% } %>
+
+    <!-- Button to View Uploaded Document, only visible if KYC is approved -->
+    <% if (user.kycStatus === 'approved') { %>
+        <!-- Apply for Loan Button -->
+        <a href="/apply-loan" 
+           class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 mt-4 block text-center">
+           Apply for Loan
+        </a>
+        <a href="/user/<%= user._id %>/id-view" 
+           class="inline-block bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-green-600 transform transition duration-300 hover:scale-105 mt-4 block text-center"
+           target="_blank">
+           View Uploaded Document
+        </a>
+    <% } %>
+
+    <% if (loanStatus === 'Approved') { %>
+        <!-- Pay Button -->
+    <a href="/user/pay-details" class="inline-block bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 mt-4 block text-center">
+        Pay
+    </a>
+    <% } %>
+    
+<script src="../keepAlive.js"></script>
+</body>
+</html>

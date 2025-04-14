@@ -5,47 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>User ID Verification</title>
+    <style>
+        body {
+            font-family:  'Poppins', sans-serif;
+            height: 100vh;
+        }
+        .color {
+            color: #c31432;
+        }
+        .bg-color {
+            background-color: #c31432;
+        }
+        @media (max-width: 768px) {
+            form {
+                width: 90%;
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            input,
+            select,
+            button {
+                padding: 0.75rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 1rem;
+                height: 85vh;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+            }
+
+            .mb-4 {
+                margin-bottom: 0.75rem;
+            }
+
+            button {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+
+<body class="bg-gray-100 flex items-center justify-center px-4">
     <form action="/user/id-verify" method="post" enctype="multipart/form-data" class="w-full max-w-lg bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">KYC Verification</h1>
+        <h1 class="text-2xl color font-bold text-center text-gray-800 mb-6">KYC</h1>
+
+        <h4 class="text-center text-gray-600 text-sm mb-4">Please Upload Govt ID to Complete KYC</h4>
 
         <!-- Flash Messages -->
-        <% if (successMessage && successMessage.length > 0) { %>
+        <% if (successMessage) { %>
             <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
                 <%= successMessage %>
             </div>
         <% } %>
 
-        <% if (errorMessage && errorMessage.length > 0) { %>
+        <% if (errorMessage) { %>
             <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
                 <%= errorMessage %>
             </div>
         <% } %>
 
-        <% if (infoMessage && infoMessage.length > 0) { %>
-            <div 
-                class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" 
-                role="alert"
-            >
+        <% if (infoMessage) { %>
+            <div class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" role="alert">
                 <%= infoMessage %>
             </div>
         <% } %>
 
-        <!-- Full Name -->
-        
-
-        <!-- Document Type -->
+        <!-- Document Upload Section -->
         <div class="mb-4">
             <label for="documentType" class="block mb-2 text-sm font-medium text-gray-900">Document Type</label>
-            <select name="documentType" id="documentType" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            <select name="documentType" id="documentType" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
                 <option value="">Select Document Type</option>
-                <option value="aadhaar">Aadhaar Card</option>
-                <option value="pan">PAN Card</option>
+                <option value="nationalId">National ID</option>
+                <option value="passport">Passport</option>
             </select>
         </div>
 
-        <!-- Upload Document Front and Back -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
             <!-- Front Image -->
             <div>
@@ -60,9 +107,15 @@
             </div>
         </div>
 
+        <div class="mb-3 flex items-center">
+            <input id="terms" type="checkbox" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-2 focus:ring-red-500" required />
+            <label for="terms" class="ml-2 text-sm text-gray-900">I agree with the <a href="#" class="color hover:underline">terms and conditions</a></label>
+        </div>
+
         <!-- Submit Button -->
-        <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">Submit</button>
+        <button type="submit" class="text-white bg-color hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">
+            Submit
+        </button>
     </form>
-    <script src="../keepAlive.js"></script>
 </body>
 </html>

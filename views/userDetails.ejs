@@ -1,3 +1,4 @@
+<!-- Removed pagination and fetches all users -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>User List</title>
     <script>
-        // Function to handle status update
         async function updateStatus(userId) {
             const selectElement = document.getElementById(`status-${userId}`);
             const newStatus = selectElement.value;
@@ -14,24 +14,20 @@
             try {
                 const response = await fetch(`/users/${userId}/status`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: newStatus }),
                 });
 
                 if (response.ok) {
                     alert('User status updated successfully!');
                 } else {
-                    alert('Failed to update user status. Please try again.');
+                    alert('Failed to update user status.');
                 }
             } catch (error) {
-                console.error('Error updating status:', error);
-                alert('An error occurred. Please try again.');
+                alert('An error occurred.');
             }
         }
 
-        // Function to handle KYC status update
         async function updateKycStatus(userId) {
             const selectElement = document.getElementById(`kyc-status-${userId}`);
             const newStatus = selectElement.value;
@@ -39,27 +35,19 @@
             try {
                 const response = await fetch(`/users/${userId}/kyc-status`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ kycStatus: newStatus }),
                 });
 
                 if (response.ok) {
                     alert('KYC status updated successfully!');
-                    location.reload(); // Refresh to reflect changes
+                    location.reload();
                 } else {
-                    alert('Failed to update KYC status. Please try again.');
+                    alert('Failed to update KYC status.');
                 }
             } catch (error) {
-                console.error('Error updating KYC status:', error);
-                alert('An error occurred. Please try again.');
+                alert('An error occurred.');
             }
-        }
-
-        // Function to view KYC document
-        function viewKycDocument(userId) {
-            window.open(`/user/${userId}/id-view`, '_self');
         }
     </script>
 </head>
@@ -68,93 +56,75 @@
 <div class="container mx-auto p-8">
     <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">User List</h1>
 
-    <!-- Back to Admin Button -->
     <div class="absolute top-5 right-5">
-        <form action="/admin" method="GET" class="inline">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50">
+        <form action="/admin" method="GET">
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg">
                 Back to Admin
             </button>
         </form>
     </div>
 
-    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-        <thead class="bg-blue-500 text-white">
-            <tr>
-                <th class="py-3 px-6 text-left">Name</th>
-                <th class="py-3 px-6 text-left">Email</th>
-                <th class="py-3 px-6 text-left">Phone</th>
-                <th class="py-3 px-6 text-left">Status</th>
-                <th class="py-3 px-6 text-left">Action</th>
-                <th class="py-3 px-6 text-left">KYC</th>
-                <th class="py-3 px-6 text-left">Action</th>
-                <th class="py-3 px-6 text-left">View KYC</th>
-                <th class="py-3 px-6 text-left">Created At</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% users.forEach(user => { %>
-                <tr class="border-b hover:bg-gray-100">
-                    <td class="py-3 px-6 text-gray-800"><%= user.name %></td>
-                    <td class="py-3 px-6 text-gray-800"><%= user.email %></td>
-                    <td class="py-3 px-6 text-gray-800"><%= user.phone %></td>
-                    <td class="py-3 px-6 text-gray-800">
-                        <select id="status-<%= user._id %>" class="bg-gray-100 border rounded px-2 py-1">
-                            <option value="active" <%= user.status === 'active' ? 'selected' : '' %>>Active</option>
-                            <option value="inactive" <%= user.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                            <option value="onhold" <%= user.status === 'onhold' ? 'selected' : '' %>>On Hold</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-6 text-gray-800">
-                        <button 
-                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                            onclick="updateStatus('<%= user._id %>')">
-                            Update
-                        </button>
-                    </td>
-                    <td class="py-3 px-6 text-gray-800">
-                        <select id="kyc-status-<%= user._id %>" class="bg-gray-100 border rounded px-2 py-1">
-                            <option value="approved" <%= user.kycStatus === 'approved' ? 'selected' : '' %>>Approved</option>
-                            <option value="rejected" <%= user.kycStatus === 'rejected' ? 'selected' : '' %>>Rejected</option>
-                            <option value="inactive" <%= user.kycStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                            <option value="inreview" <%= user.kycStatus === 'inreview' ? 'selected' : '' %>>In Review</option>
-                        </select>
-                    </td>
-                    <td class="py-3 px-6 text-gray-800">
-                        <button 
-                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                            onclick="updateKycStatus('<%= user._id %>')">
-                            Update
-                        </button>
-                    </td>
-                    <td class="py-3 px-6 text-gray-800">
-                        <a href="/user/<%= user._id %>/id-view" 
-                           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-center inline-block">
-                           View KYC
-                        </a>
-                    </td>
-                    <td class="py-3 px-6 text-gray-800"><%= user.createdAt.toLocaleString() %></td>
+    <!-- Scrollable Table -->
+    <div class="overflow-auto max-h-[500px] border border-gray-300 rounded-lg shadow-lg">
+        <table class="min-w-full bg-white">
+            <thead class="bg-blue-500 text-white sticky top-0">
+                <tr>
+                    <th class="py-3 px-6 text-left">Name</th>
+                    <th class="py-3 px-6 text-left">Email</th>
+                    <th class="py-3 px-6 text-left">Phone</th>
+                    <th class="py-3 px-6 text-left">Status</th>
+                    <th class="py-3 px-6 text-left">Action</th>
+                    <th class="py-3 px-6 text-left">KYC</th>
+                    <th class="py-3 px-6 text-left">Action</th>
+                    <th class="py-3 px-6 text-left">View KYC</th>
+                    
                 </tr>
-            <% }) %>
-        </tbody>
-    </table>
-
-    <div class="mt-6 flex justify-center space-x-4">
-        <% if (currentPage > 1) { %>
-            <a href="/admin/users?page=<%= currentPage - 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Previous</a>
-        <% } %>
-    
-        <% for (let i = 1; i <= totalPages; i++) { %>
-            <a href="/admin/users?page=<%= i %>" class="<%= i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-blue-500' %> px-4 py-2 rounded hover:bg-blue-600">
-                <%= i %>
-            </a>
-        <% } %>
-    
-        <% if (currentPage < totalPages) { %>
-            <a href="/admin/users?page=<%= currentPage + 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Next</a>
-        <% } %>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="py-3 px-6 text-gray-800"><%= user.name %></td>
+                        <td class="py-3 px-6 text-gray-800"><%= user.email %></td>
+                        <td class="py-3 px-6 text-gray-800"><%= user.phone %></td>
+                        <td class="py-3 px-6 text-gray-800">
+                            <select id="status-<%= user._id %>" class="bg-gray-100 border rounded px-2 py-1">
+                                <option value="active" <%= user.status === 'active' ? 'selected' : '' %>>Active</option>
+                                <option value="inactive" <%= user.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                                <option value="onhold" <%= user.status === 'onhold' ? 'selected' : '' %>>On Hold</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-6 text-gray-800">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                    onclick="updateStatus('<%= user._id %>')">
+                                Update
+                            </button>
+                        </td>
+                        <td class="py-3 px-6 text-gray-800">
+                            <select id="kyc-status-<%= user._id %>" class="bg-gray-100 border rounded px-2 py-1">
+                                <option value="approved" <%= user.kycStatus === 'approved' ? 'selected' : '' %>>Approved</option>
+                                <option value="rejected" <%= user.kycStatus === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                                <option value="inactive" <%= user.kycStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                                <option value="inreview" <%= user.kycStatus === 'inreview' ? 'selected' : '' %>>In Review</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-6 text-gray-800">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                    onclick="updateKycStatus('<%= user._id %>')">
+                                Update
+                            </button>
+                        </td>
+                        <td class="py-3 px-6 text-gray-800">
+                            <a href="/user/<%= user._id %>/id-view"
+                               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-center inline-block">
+                                View KYC
+                            </a>
+                        </td>
+                        
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
     </div>
-    
-
 </div>
 
 </body>

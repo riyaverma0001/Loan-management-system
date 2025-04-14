@@ -5,11 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>User Login</title>
-</head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen px-4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&display=swap" rel="stylesheet">
 
-<form action="/user/login" method="post" class="w-full max-w-lg bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">User Login</h1>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <style>
+        .cantora-one-regular {
+        font-family: "Cantora One", serif;
+        font-weight: 600;
+        font-style: normal;
+        }          
+
+        body {
+            font-family: "Roboto", serif;
+            margin-top: 100px;
+        }
+        .color {
+            color: #c31432;
+        }
+        .bg-color {
+            background-color: #c31432;
+        }
+        input:focus {
+            border-color: #d3a3a9;
+            border-width: 1.5px;  /* Ensures the border is visible */
+            outline: none;  /* Removes the default blue outline */
+        }
+
+        @media (max-width: 640px) {
+        form {
+            width: 90%;
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        input,
+        button {
+            padding: 0.75rem;
+        }
+    }
+
+    /* Media Query for Medium Screens */
+    @media (max-width: 768px) {
+        form {
+            width: 80%;
+        }
+    }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center px-4">
+
+<form action="/api/user/login" method="post" class="w-full max-w-lg bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
+    <h1 class="text-2xl cantora-one-regular color font-bold text-center text-gray-800 mb-2">Login</h1>
+    <h4 class="text-center text-gray-600 text-sm mb-5">Please enter details to Login</h4>
 
     <!-- Flash Messages -->
     <% if (successMessage && successMessage.length > 0) { %>
@@ -26,28 +82,28 @@
 
     <!-- Email Field -->
     <div class="mb-4">
-        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your email</label>
-        <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="name@domain.com" required />
+        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email Address</label>
+        <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:block w-full p-2.5 mb-4" placeholder="name@domain.com" required />
     </div>
 
     <!-- Password Field -->
     <div class="mb-4">
-        <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Your password</label>
-        <input type="password" name="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required />
+        <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Password</label>
+        <input type="password" name="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:block w-full p-2.5 mb-3" placeholder="Password" required />
     </div>
 
     <!-- Remember Me Checkbox -->
     <div class="mb-6 flex items-center">
-        <input id="remember" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500" />
-        <label for="remember" class="ml-2 text-sm text-gray-900">Remember me</label>
+        <input id="remember" type="checkbox" class="w-3 h-3 text-red-600 border-gray-300 rounded focus:ring-2 focus:ring-red-500" />
+        <label for="remember" class="ml-2 text-sm text-gray-900" style="font-size: 12px;">Remember me</label>
     </div>
 
     <!-- Login Button -->
-    <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center">Login</button>
+    <button type="submit" class="text-white bg-color hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-1/2 px-5 py-2.5 text-center" style="margin-left: 80px;">Login</button>
 
     <!-- Link to Register -->
     <p class="mt-4 text-center text-sm text-gray-600">
-        Don't have an account? <a href="/user/signup" class="text-blue-600 hover:underline">Register</a>
+        Don't have an account? <a href="/api/user/signup" class="color hover:underline">Register</a>
     </p>
 </form>
 <script src="../keepAlive.js"></script>

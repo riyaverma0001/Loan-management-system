@@ -5,27 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>Approved Loans</title>
+    <style>
+         body {
+    font-family: 'Poppins', sans-serif;
+        }
+        .color {
+            color: #c31432;
+        }
+        .bg-color {
+            background-color: #c31432;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <nav class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800 color">Logo</h1>
+            <div class="flex space-x-4 items-center">
+                <a href="/admin/loans" class="text-gray-700 hover:text-red-600 font-medium">Loan Requests</a>
+                <span class="text-gray-300">|</span>
+                <a href="/admin/loans/approve" class="text-gray-700 hover:text-red-600 font-medium">Approved Loans</a>
+                <span class="text-gray-300">|</span>
+                <a href="/admin/loans/decline" class="text-gray-700 hover:text-red-600 font-medium">Declined Loans</a>
+                <span class="text-gray-300">|</span>
+                <a href="/admin/payment-requests" class="text-gray-700 hover:text-red-600 font-medium">Payment Requests</a>
+            </div>
+
+            <!-- View Users & Logout Box -->
+            <div class="border border-gray-300 px-4 py-2 rounded-md flex items-center space-x-4 bg-gray-50">
+                <a href="/admin/users" class="text-gray-700 hover:text-blue-600 font-medium">View Users</a>
+                <span class="text-gray-300">|</span>
+                <form action="/admin/logout" method="POST">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded shadow transition">
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    
     <!-- Main Container -->
     <div class="container mx-auto px-6 py-10">
 
         <!-- Back to Dashboard Button -->
-        <div class="absolute top-5 right-5">
+        <div class="absolute top-30 right-5">
             <a href="/admin" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-5 py-3 rounded-lg shadow-lg transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
                 Back to Dashboard
             </a>
         </div>
 
-        <h1 class="text-3xl font-semibold text-blue-700 mb-8">
+        <h1 class="text-3xl font-semibold color mb-8">
             Approved Loans
         </h1>
 
         <!-- Table -->
         <div class="overflow-hidden rounded-lg shadow-lg border border-gray-200">
             <table class="min-w-full bg-white">
-                <thead class="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
+                <thead class="bg-gradient-to-r bg-color text-white">
                     <tr class="text-left text-sm font-medium uppercase tracking-wide">
                         <th class="py-4 px-6">Username</th>
                         <th class="py-4 px-6">Amount</th>
@@ -47,7 +84,7 @@
                                     $<%= loan.monthlyEMI.toLocaleString() %>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <span class="inline-block px-3 py-1 text-sm font-semibold bg-blue-100 text-blue-600 rounded-full">
+                                    <span class="inline-block px-3 py-1 text-sm font-semibold bg-green-100 text-green-600 rounded-full">
                                         <%= loan.status %>
                                     </span>
                                 </td>

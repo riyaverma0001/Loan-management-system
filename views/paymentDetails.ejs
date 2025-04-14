@@ -2,45 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, initial-scale=1, maximum-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&display=swap" rel="stylesheet">
     <title>Payment Details</title>
+    <style>
+        body {
+            font-family: "Roboto", serif;
+            max-width: 480px;
+            margin: auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .cantora-one-regular {
+        font-family: "Cantora One", serif;
+        font-weight: 600;
+        font-style: normal;
+        } 
+        .color {
+            color: #c31432;
+        }
+        .bg-color {
+            background-color: #c31432;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
-
-    
-    <!-- Navbar -->
-    <nav class="bg-blue-600 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center">
-            
-            <!-- Center: User Welcome Message -->
-            <div class="text-center text-lg font-medium">
-                <div class="text-center text-lg font-medium flex items-center justify-center space-x-2">
-                    <!-- SVG Icon -->
-                    <div class="rounded-full border-2 border-gray-500 p-2 inline-block">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.485 0 4.5-2.015 4.5-4.5S14.485 3 12 3 7.5 5.015 7.5 7.5 9.515 12 12 12zM4.5 21c0-4.142 3.358-7.5 7.5-7.5s7.5 3.358 7.5 7.5H4.5z" />
-                        </svg>
-                    </div>
-                    <!-- Username -->
-                    <p class="text-4xl"><%= name %></p>
+    <nav class="bg-color text-white py-4 text-center">
+        <div class="text-lg font-medium">
+            <div class="flex items-center justify-center space-x-2">
+                <div class="rounded-full border-2 border-white-500 p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.485 0 4.5-2.015 4.5-4.5S14.485 3 12 3 7.5 5.015 7.5 7.5 9.515 12 12 12zM4.5 21c0-4.142 3.358-7.5 7.5-7.5s7.5 3.358 7.5 7.5H4.5z" />
+                    </svg>
                 </div>
-                
-                <span class="text-2xl">Welcome onboard!</span> <!-- Replace with dynamic user name -->
+                <p class="text-2xl"><%= name %></p>
             </div>
-    
-            <!-- Right Side: Back to Dashboard Link -->
-            <div>
-                <a href="/user/dashboard" 
-                   class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 text-white font-medium">
-                   Back to Dashboard
-                </a>
-            </div>
+            <span class="text-lg">Welcome onboard!</span>
         </div>
     </nav>
-    
-    <% if (successMessage && successMessage.length > 0) { %>
+     <!-- Flash Messages -->
+     <% if (successMessage && successMessage.length > 0) { %>
         <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
             <%= successMessage %>
         </div>
@@ -52,119 +63,92 @@
         </div>
     <% } %>
 
-    <!-- Payment Details Content -->
-    <div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+    <% if (infoMessage && infoMessage.length > 0) { %>
+        <div class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" role="alert">
+            <%= infoMessage %>
+        </div>
+    <% } %>
 
-        <!-- Title Section -->
-        <div class="text-3xl font-bold text-blue-600 mb-6 text-center">
+
+    <div class="p-4 bg-white rounded-lg shadow-md">
+        <div class="text-center cantora-one-regular text-2xl font-bold color mb-6">
             Your Payment Information
         </div>
 
-        <!-- Payment Information Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-
-            <!-- Total Cost -->
-            <div class="bg-purple-100 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-xl font-semibold text-purple-600 mb-4">Total Cost</h3>
-                <p class="text-2xl font-bold text-purple-700">$<%= totalCost %></p> <!-- Replace with dynamic value -->
+        <div class="grid grid-cols-2 gap-4">
+            <div class="p-2 bg-white rounded-lg shadow-md text-center border border-red-500">
+                <h3 class="text-lg font-semibold">Total Cost</h3>
+                <p class="text-xl font-bold">$<%= totalCost %></p>
             </div>
-
-            <!-- Amount Paid -->
-            <div class="bg-green-100 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-xl font-semibold text-green-600 mb-4">Amount Paid</h3>
-                <p class="text-2xl font-bold text-green-700">$<%= amountPaid%></p> <!-- Replace with dynamic value -->
+            <div class="p-2 bg-white rounded-lg shadow-md text-center border border-red-500">
+                <h3 class="text-lg font-semibold">Amount Paid</h3>
+                <p class="text-xl font-bold">$<%= amountPaid %></p>
             </div>
-
-            <!-- Remaining Balance -->
-            <div class="bg-yellow-100 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-xl font-semibold text-yellow-600 mb-4">Remaining Balance</h3>
-                <p class="text-2xl font-bold text-yellow-700">$<%= remainingBalance %></p> <!-- Replace with dynamic value -->
-            </div>
-
-            <!-- Next Due Date -->
-            <div class="bg-blue-100 p-6 rounded-lg shadow-md text-center">
-                <h3 class="text-xl font-semibold text-blue-600 mb-4">Next Due Date</h3>
-                <p class="text-2xl font-bold text-blue-700"><%= nextDue %></p> <!-- Replace with dynamic value -->
-            </div>
+           
         </div>
-
-        <!-- Upcoming Dues Section -->
-        <h3 class="text-3xl font-bold text-blue-600 mb-6">Upcoming Dues</h3>
-
-       <!-- Choose EMI Plan (example of 3-month EMI plan) -->
-
-       <!-- Corrected loop and div opening -->
-      <!-- Dynamically Generate EMI Details -->
-<div class="bg-gray-100 p-6 rounded-lg shadow-md">
-    <h3 class="text-xl font-semibold text-blue-600 mb-4">Chosen EMI Plan: <%= emiPlan %> months</h3>
-
-    <!-- Loop through EMI dates to display each EMI with a unique ID -->
-    <% emiDates.forEach(function(emi, index) { %>
-        <!-- Unique ID generated based on the index -->
-        <% const emiId = index + 1; %>
         
-        <div class="grid grid-cols-3 gap-6 mb-6">
-            <div class="p-4 bg-white rounded-lg shadow-md text-center">
-                <h4 class="font-semibold text-blue-600">Amount</h4>
-                <p class="text-xl font-bold text-gray-700">$<%= emi.amount %></p>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="p-2 bg-white rounded-lg shadow-md text-center border border-red-500">
+                <h3 class="text-lg font-semibold">Pending Balance</h3>
+                <p class="text-xl font-bold">$<%= remainingBalance %></p>
             </div>
-            <div class="p-4 bg-white rounded-lg shadow-md text-center">
-                <h4 class="font-semibold text-blue-600">Due Date</h4>
-                <p class="text-xl font-bold text-gray-700"><%= emi.dueDate %></p>
-            </div>
-            <div class="p-4 bg-white rounded-lg shadow-md text-center">
-                <h4 class="font-semibold text-blue-600">Status</h4>
-                <p class="text-xl font-bold 
-                    <% if (emi.status === 'Pending') { %> text-yellow-500 
-                    <% } else if (emi.status === 'Approved') { %> text-green-500 
-                    <% } else { %> text-red-500 <% } %>">
-                    <%= emi.status %>
-                </p>
+            <div class="p-2 bg-white rounded-lg shadow-md text-center border border-red-500">
+                <h3 class="text-lg font-semibold">Next Due Date</h3>
+                <p class="text-xl font-bold"><%= nextDue %></p>
             </div>
         </div>
+        
+    </div>
 
-        <!-- Pay Now Button -->
-        <form action="/user/pay-method" method="GET">
-            <input type="hidden" name="emiId" value="<%= emiId %>"> <!-- Pass the unique EMI ID -->
-            <input type="hidden" name="dueDate" value="<%= emi.dueDate %>">
-            <input type="hidden" name="amount" value="<%= emi.amount %>">
-            <div class="text-center">
-                <button type="submit" 
-                class="text-white px-6 py-3 rounded-lg transition-all duration-300 
-                       focus:outline-none focus:ring-2 focus:ring-offset-2
-                       <% if (emi.status === 'Approved') { %> bg-green-500 hover:bg-green-600 focus:ring-green-400 <% } %> 
-                       <% if (emi.status === 'Declined') { %> bg-red-500 hover:bg-red-600 focus:ring-red-400 <% } %> 
-                       <% if (emi.status === 'Pending') { %> bg-blue-500 hover:bg-blue-600 focus:ring-blue-400 <% } %>"
-                       <% if (emi.status === 'Approved') { %>
-                        <button type="button" class="bg-green-500 text-white px-6 py-2 rounded-lg font-medium cursor-not-allowed" disabled>
-                            <span class="font-medium">Paid</span>
-                            <i class="fas fa-check-circle ml-2"></i>
-                        </button>
-                    <% } else if (emi.status === 'Declined') { %>
-                        <button type="button" class="bg-red-500 text-white px-6 py-2 rounded-lg font-medium cursor-not-allowed" disabled>
-                            <span class="font-medium">Declined</span>
-                            <i class="fas fa-times-circle ml-2"></i>
-                        </button>
-                    <% } else if (emi.status === 'Pending') { %>
-                        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600">
-                            <span class="font-medium">Pay Now</span>
-                            <i class="fas fa-credit-card ml-2"></i>
-                        </button>
+    <div class="p-4 bg-white mt-10 rounded-lg shadow-lg mb-10">
+        <h3 class="text-center cantora-one-regular text-2xl font-bold color mb-4">Upcoming Dues</h3>
+        <div class=" p-4 rounded-lg ">
+            <h3 class="text-lg text-center font-semibold mb-4">Chosen EMI Plan: <%= emiPlan %> months</h3>
+            <% emiDates.forEach(function(emi, index) { %>
+                <% const emiId = index + 1; %>
+                <div class="space-y-2 mb-4 p-4 bg-gray-100 rounded-lg shadow-md">
+                    <div class="text-center font-semibold">Amount: <span class="text-xl font-bold text-gray-700">$<%= emi.amount %></span></div>
+                    <div class="text-center font-semibold">Due Date: <span class="text-xl font-bold text-gray-700"><%= emi.dueDate %></span></div>
+                    <div class="text-center font-semibold">Status: 
+                        <span class="text-xl font-bold 
+                            <% if (emi.status === 'Pending') { %> text-yellow-500 
+                            <% } else if (emi.status === 'Approved') { %> text-green-500 
+                            <% } else { %> text-red-500 <% } %>">
+                            <%= emi.status %>
+                        </span>
+                    </div>
+                    <% if (emi.status === 'Pending') { %>
+                        <form action="/user/pay-method?loanId=<%= loan._id %>" method="GET">
+                            <input type="hidden" name="loanId" value="<%= loan._id %>">
+                            <input type="hidden" name="emiId" value="<%= emiId %>">
+                            <input type="hidden" name="dueDate" value="<%= emi.dueDate %>">
+                            <input type="hidden" name="amount" value="<%= emi.amount %>">
+                            <div class="text-center">   
+                                <button type="submit" class="bg-color text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600">
+                                    <span class="font-medium">Pay Now</span>
+                                    <i class="fas fa-credit-card ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    <% } else if (emi.status === 'Approved') { %>
+                        <div class="text-center">
+                            <button type="button" class="bg-green-500 text-white px-6 py-2 rounded-lg font-medium cursor-not-allowed" disabled>
+                                <span class="font-medium">Paid</span>
+                                <i class="fas fa-check-circle ml-2"></i>
+                            </button>
+                        </div>
+                    <% } else { %>
+                        <div class="text-center">
+                            <button type="button" class="bg-red-500 text-white px-6 py-2 rounded-lg font-medium cursor-not-allowed" disabled>
+                                <span class="font-medium">Declined</span>
+                                <i class="fas fa-times-circle ml-2"></i>
+                            </button>
+                        </div>
                     <% } %>
                     
-        </button>
-        
-            </div>
-        </form>
-    <% }); %>
-</div>
-    
-
+                </div>
+            <% }); %>
         </div>
-    
-</div>
-
     </div>
-    <script src="../keepAlive.js"></script>
 </body>
 </html>

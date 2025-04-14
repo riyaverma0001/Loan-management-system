@@ -5,10 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Request Status</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 1rem;
+        }
+    
+        .color {
+            color: #c31432;
+        }
+    
+        .bg-color {
+            background-color: #c31432;
+        }
+    
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .max-w-md {
+                width: 90%;
+                padding: 1.5rem;
+            }
+    
+            h1 {
+                font-size: 1.5rem;
+            }
+    
+            p {
+                font-size: 1rem;
+            }
+    
+            a {
+                width: 100%;
+                display: block;
+                text-align: center;
+                padding: 0.75rem;
+            }
+        }
+    
+        @media (max-width: 480px) {
+            .max-w-md {
+                width: 100%;
+                padding: 1rem;
+            }
+    
+            h1 {
+                font-size: 1.25rem;
+            }
+    
+            p {
+                font-size: 0.875rem;
+            }
+    
+            a {
+                font-size: 0.875rem;
+                margin-left: 60px;
+                width: 60%;
+                padding: 2px;
+            }
+        }
+    </style>
+    
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 flex items-center justify-center" style="margin-top: 25vh;">
     <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Loan Request Status</h1>
+        <h1 class="text-2xl font-bold color text-center mb-6">Loan Request Status</h1>
         <p class="text-lg text-gray-700 text-center">
             Hello <span class="font-semibold"><%= loan.studentName %></span>,
         </p>
@@ -27,7 +87,7 @@
         </div>
 
         <div class="mt-6 text-center">
-            <a href="/user/dashboard" class="bg-blue-500 text-white font-medium px-6 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300">
+            <a href="/user/dashboard" class="bg-color text-white font-medium px-6 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-300">
                 Go to Dashboard
             </a>
         </div>

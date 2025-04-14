@@ -2,7 +2,7 @@
 
 This is a loan management system built with Node.js, Express, MongoDB, and other technologies like JWT, bcryptjs, and multer for handling file uploads.
 
-## Features
+## Features   
 
 - User Registration and Login
 - Admin Registration and Login
@@ -63,54 +63,69 @@ This is a loan management system built with Node.js, Express, MongoDB, and other
   - Flash messages are used to provide feedback to users. They will be displayed on the next page after a redirect. 
 
 ## Open the application in your browser:
+  - Home Page: http://app.payoman.com/
+  - Admin Login: http://app.payoman.com/admin/login
+  - User Login: http://app.payoman.com/api/user/login
 
-  - Admin Login: http://localhost:7000/admin/login
-  - User Login: http://localhost:7000/user/login
-
-## Routes
+## API's
 
 - **Admin Routes:**
 
-  - GET /admin/signup: Admin signup page
-  - POST /admin/signup: Admin signup form submission
-  - GET /admin/login: Admin login page
-  - POST /admin/login: Admin login form submission
-  - GET /admin: Admin dashboard (displays total users)
-  - GET /admin/users: View all users
-  - PUT /users/:id/status: Update user status
-  - PUT /users/:id/kyc-status: Update user KYC status
-  - GET /user/:id/id-view: Admin can view specific user's uploaded id
-  - POST /admin/logout: Admin logout
-  - GET /admin/loans/approve: Approve loan
-  - GET /admin/loans/decline: Decline loan
-  - GET  /admin/loans/approve/:id: Approve Loans
-  - GET  /admin/loans/decline/:id: Decline Loans
+  - GET     http://app.payoman.com/admin/signup     : Admin signup page
+  - POST     http://app.payoman.com/admin/signup    : Admin signup form submission
 
+  - GET     http://app.payoman.com/admin/login      : Admin login page
+  - POST     http://app.payoman.com/admin/login     : Admin login form submission
+
+  - GET      http://app.payoman.com/admin           : Admin dashboard (displays total users)
+
+  - GET     http://app.payoman.com/admin/users      : View all users
+
+  - PUT     http://app.payoman.com/users/:id/status     : Update user status
+  - PU      http://app.payoman.com/users/:id/kyc-status     : Update user KYC status
+  - GET     http://app.payoman.com/user/:id/id-view     : Admin can view specific user's uploaded id
+
+  - POST    http://app.payoman.com/admin/logout         : Admin logout
+
+  - GET     http://app.payoman.com/admin/loans
+  - GET     http://app.payoman.com/admin/loans/approve      : Approve loan
+  - GET     http://app.payoman.com/admin/loans/decline      : Decline loan
+  - GET      http://app.payoman.com/admin/loans/approve/:id     : Approve Loans
+  - GET      http://app.payoman.com/admin/loans/decline/:id     : Decline Loans
+
+/admin/loans
 - **User Routes**
 
-  - GET /user/signup: User signup page
-  - POST /user/signup: User signup form submission
-  - GET /user/login: User login page
-  - POST /user/login: User login form submission
-  - GET /user/dashboard: User dashboard (displays KYC status)
-  - GET /user/id-verify: User KYC form page
-  - POST /user/id-verify: User submits KYC form
-  - GET /user/:id/id-view: User can view their own uploaded id
-  - GET /apply-loan: Submits a loan application
-  - POST /apply-loan: User submits loan application
-  - GET /loans: View all loans
-  - GET /loan-status: Shows loan status after loan request
+  - GET     http://app.payoman.com/api/user/signup  : User signup page
+  - POST    http://app.payoman.com/api/user/signup  : User signup form submission
+
+  - GET     http://app.payoman.com/api/user/login   : User login page
+  - POST    http://app.payoman.com/api/user/login   : User login form submission
+
+  - GET     http://app.payoman.com/user/dashboard   : User dashboard (displays KYC status)
+  - GET     http://app.payoman.com/user/id-verify   : User KYC form page
+  - POST    http://app.payoman.com/user/id-verify   : User submits KYC form
+  - GET     http://app.payoman.com/user/:id/id-view : User can view their own uploaded id
+  
+  - GET     http://app.payoman.com/api/apply-loan   : Submits a loan application
+  - POST    http://app.payoman.com/api/apply-loan   : User submits loan application
+  - GET     http://app.payoman.com/loan-status/:loanId  : Shows loan status after loan request
+
+   -GET     http://app.payoman.com/logout
 
 - **Payment Routes**
 
-  - GET /user/pay-details : shows payment details of user
-  - GET /user/pay-method : shows payment methods for payment
-  - POST /submit-payment : submits payment into db
-  - GET /admin/payments : shows payment request to admin
-  - POST /admin/approve/:id : Admin can approve payment request of user
-  - POST /admin/decline/:id : Admin can decline payment request of user
+  - GET     http://app.payoman.com/user/pay-details     : shows payment details of user
+  - GET     http://app.payoman.com/user/pay-method  : shows payment methods for payment
+  - POST    http://app.payoman.com/user/pay-method  : post payment methods for payment in db
 
-## Error Handling
+  - GET     http://app.payoman.com/admin/payment-requests   : shows payment request to admin
+
+  -POST     http://app.payoman.com/admin/payments/approve/:id
+  -POST     http://app.payoman.com/admin/payments/decline/:id
+
+
+ ## Error Handling
 
   - The application includes basic error handling for common scenarios such as user not found, invalid credentials, and server errors.
   - A 404 error page will be displayed for any unknown routes.

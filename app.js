@@ -43,7 +43,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
+// app.use(express.static(path.join(__dirname, 'images')))
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/images', express.static(path.join(__dirname, 'src/images')));
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -80,8 +82,13 @@ const checkAdminAuth = (req, res, next) => {
     next(); // Proceed to the next middleware or route handler
 };
 
-// Admin Routes
+//Home Page
+ app.get('/', (req, res) => {
+    res.render('home')
+})
 
+
+// Admin Routes
 // Admin dashboard (with session check)
 app.get('/admin',checkAdminAuth, async (req, res) => {
     if (!req.session.admin) {
@@ -99,30 +106,16 @@ app.get('/admin',checkAdminAuth, async (req, res) => {
     }
 });
 
-app.get('/admin/users', checkAdminAuth,async (req, res) => {
-    // Get the current page number, default to 1
-    const page = parseInt(req.query.page) || 1;
-    const limit = 4;  // Set how many users to show per page
-    const skip = (page - 1) * limit; // Calculate how many records to skip
-
+app.get('/admin/users', checkAdminAuth, async (req, res) => {
     try {
-        // Fetch users with pagination
-        const users = await User.find()
-            .skip(skip)  // Skip users based on the page number
-            .limit(limit) // Limit the number of users per page
-            .lean();
+        // Fetch all users without pagination
+        const users = await User.find().lean();
 
-        // Get the total number of users for pagination calculation
-        const totalUsers = await User.countDocuments();
-
-        // Calculate the total number of pages
-        const totalPages = Math.ceil(totalUsers / limit);
-
-        // Render the user list with pagination data
+        // Render the user list without pagination
         res.render('userDetails', { 
             users, 
-            currentPage: page, 
-            totalPages 
+            currentPage: 1, 
+            totalPages: 1 // No pagination, so only one page
         });
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -190,8 +183,16 @@ app.post('/admin/signup', async (req, res) => {
         });
 
         await newAdmin.save();
-        req.flash('success', 'Admin registered successfully! Please log in.');
-        res.redirect('/admin/login');
+        if(req.query.type === 'json') {
+            res.status(200).json({
+                success: true,
+                message: "Admin created successfully !"
+            })
+        }
+        else {
+            req.flash('success', 'Admin registered successfully! Please log in.');
+            res.redirect('/admin/login');
+        }
     } catch (error) {
         console.error("Error registering admin:", error);
         req.flash('error', 'An error occurred during registration. Please try again.');
@@ -214,14 +215,18 @@ app.post('/admin/login', async (req, res) => {
     try {
         const existingAdmin = await Admin.findOne({ email });
         if (!existingAdmin) {
-            // return res.status(400).json({ message: "Admin not found" });
+            if (req.query.type === 'json') {
+                return res.status(400).json({ success: false, message: "Admin not found, please signup" });
+            }
             req.flash('error', 'Admin not found, please signup');
-        return res.redirect('/admin/signup');
+            return res.redirect('/admin/signup');
         }
 
         const isPasswordValid = await bcryptjs.compare(password, existingAdmin.password);
         if (!isPasswordValid) {
-            // return res.status(400).json({ message: "Invalid password" });
+            if (req.query.type === 'json') {
+                return res.status(400).json({ success: false, message: "Invalid password" });
+            }
             req.flash('error', 'Invalid password');
             return res.redirect('/admin/login');
         }
@@ -234,15 +239,22 @@ app.post('/admin/login', async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: existingAdmin._id, email: existingAdmin.email }, JWT_SECRET, { expiresIn: '1d' });
-        // res.json({ token }); // Send token to client
-        console.log(token);
-        res.redirect('/admin/');
-        
+
+        if (req.query.type === 'json') {
+            return res.status(200).json({
+                success: true,
+                message: "Admin login successful!",
+                token
+            });
+        } else {
+            return res.redirect('/admin/');
+        }        
     } catch (error) {
         console.error("Error logging in Admin:", error);
-        return res.status(500).json({ message: "Error logging in Admin" });
+        return res.status(500).json({ success: false, message: "Error logging in Admin" });
     }
 });
+
 
 // Admin Logout API (POST)
 app.post('/admin/logout', (req, res) => {
@@ -256,38 +268,21 @@ app.post('/admin/logout', (req, res) => {
 });
 
 // User KYC - Render Form (GET)
-// app.get('/user/id-verify', async (req, res) => {
-//     if (!req.session.user) {
-//         return res.redirect('/user/login');  // Redirect to login if not logged in
-//     }
-
-//     const user = await User.findById(req.session.user.id);
-
-//     // If the user already has a KYC status (approved etc.), redirect to dashboard
-//     if (user && (user.kycStatus !== 'inactive' && user.kycStatus !== 'inreview') && user.kycStatus !== 'rejected') {
-//         req.flash('success', 'You have KYC status approved')
-//         return res.redirect('/user/dashboard');  // Redirect to dashboard if KYC is already completed
-//     }
-    
-//     // If user hasn't completed KYC, show the KYC form
-//     res.render('userIdVerify');
-// });
-
 app.get('/user/id-verify', async (req, res) => {
     if (!req.session.user) {
         req.flash('error', 'You need to log in first.');
-        return res.redirect('/user/login');  // Redirect to login if not logged in
+        return res.redirect('/api/user/login');
     }
 
     const user = await User.findById(req.session.user.id);
 
-    // If the user already has a KYC status (approved etc.), redirect to dashboard
     if (user) {
         if (user.kycStatus === 'approved') {
             req.flash('success', 'Your KYC has been approved! You can now access the dashboard.');
-            return res.redirect('/user/dashboard');  // Redirect to dashboard if KYC is already completed
+            return res.redirect('/user/dashboard');
         } else if (user.kycStatus === 'inreview') {
             req.flash('info', 'Your KYC is under review. Please wait for admin approval.');
+            return res.redirect('/user/dashboard'); 
         } else if (user.kycStatus === 'inactive') {
             req.flash('error', 'Your KYC is inactive. Please submit your documents.');
         } else if (user.kycStatus === 'rejected') {
@@ -295,18 +290,19 @@ app.get('/user/id-verify', async (req, res) => {
         }
     }
 
-    // If user hasn't completed KYC, show the KYC form
     res.render('userIdVerify', {
-        successMessage: req.flash('success'),
-        errorMessage: req.flash('error'),
-        infoMessage: req.flash('info'),
+        successMessage: req.flash('success')[0] || null,
+        errorMessage: req.flash('error')[0] || null,
+        infoMessage: req.flash('info')[0] || null,
+        user: user
     });
 });
+
 
 app.post('/user/id-verify', upload.fields([{ name: 'documentFront' }, { name: 'documentBack' }]), async (req, res) => {
     if (!req.session.user) {
         req.flash('error', 'User not found. Please log in again.');
-        return res.redirect('/user/login');
+        return res.redirect('/api/user/login');
     }
 
     const { documentType } = req.body;
@@ -325,7 +321,7 @@ app.post('/user/id-verify', upload.fields([{ name: 'documentFront' }, { name: 'd
 
         if (!user) {
             req.flash('error', 'User not found in the database.');
-            return res.redirect('/user/login');
+            return res.redirect('/api/user/login');
         }
 
         // Update only if required
@@ -351,6 +347,7 @@ app.post('/user/id-verify', upload.fields([{ name: 'documentFront' }, { name: 'd
             return res.redirect('/user/dashboard');
         } else if (updatedUser.kycStatus === 'inreview') {
             req.flash('info', 'Your KYC is under review. Please wait for admin approval.');
+            return res.redirect('/user/dashboard');
         } else if (updatedUser.kycStatus === 'inactive') {
             req.flash('info', 'Your KYC is inactive. Please submit your documents.');
         } else if (updatedUser.kycStatus === 'rejected') {
@@ -364,14 +361,22 @@ app.post('/user/id-verify', upload.fields([{ name: 'documentFront' }, { name: 'd
         //     errorMessage: req.flash('error'),
         //     infoMessage: req.flash('info'),
         // });
-        res.redirect('/user/id-verify')
+        if(req.query.type === 'json') {
+            res.status(200).json({
+                success: true,
+                message: "document uploaded !"
+            })
+        }
+        else {
+            res.redirect('/user/id-verify')
+        }
+        
     } catch (error) {
         console.error('Error processing KYC submission:', error);
         req.flash('error', 'An error occurred while submitting your KYC. Please try again.');
         res.redirect('/user/id-verify');
     }
 });
-
 
 // Admin - Update user KYC status
 app.put('/users/:id/kyc-status', async (req, res) => {
@@ -406,43 +411,61 @@ app.put('/users/:id/kyc-status', async (req, res) => {
     }
 });
 
-// User Dashboard (GET) - Display KYC Status
 app.get('/user/dashboard', async (req, res) => {
-    if (!req.session.user) {
+    const userId = req.session.user?.id;
+    if (!userId) {
         req.flash('error', 'Please log in to access the dashboard.');
-        return res.redirect('/user/login');  // Redirect to login if not logged in
+        return res.redirect('/api/user/login');
     }
+
     try {
-        // Fetch user details including KYC status from the database
-        const user = await User.findById(req.session.user.id);
+        const user = await User.findById(userId);
         if (!user) {
             req.flash('error', 'User not found.');
-            return res.redirect('/user/login');
+            return res.redirect('/api/user/login');
         }
 
-        // Fetch loan status from the Loan model (assuming the loan is linked with the user via userId)
-        const loan = await Loan.findOne({ userId: user._id }); // Assuming 'userId' is the reference field in the Loan model
-        
+        // Convert createdAt Unix timestamp to Date object (only for the user)
+        user.createdAt = new Date(parseInt(user.createdAt));
 
-        // Check if the user's KYC status is approved
-        if (user.kycStatus !== "approved") {
-            req.flash('error', 'Access denied: Your KYC is not approved yet.');
-            return res.redirect('/user/id-verify');  // Redirect to KYC verification page
+        // Fetch all loans for the user
+        const loans = await Loan.find({ userId: user._id });
+
+        // Check if KYC status has changed
+        const previousKycStatus = req.session.kycStatus;
+
+        if (previousKycStatus && previousKycStatus !== user.kycStatus) {
+            if (user.kycStatus === 'approved') {
+                req.flash('success', 'Your KYC has been approved! You now have full access.');
+            } else if (user.kycStatus === 'rejected') {
+                req.flash('error', 'Your KYC has been rejected. Please contact support.');
+            } else {
+                req.flash('info', 'Your KYC is under review. Please wait for admin approval.');
+            }
         }
 
-        // Check if loan exists and pass loan status, else set it to 'Pending' or default
-        const loanStatus = loan ? loan.status : 'Pending'; // Default to 'Pending' if no loan found
+        // Update session with latest KYC status
+        req.session.kycStatus = user.kycStatus;
 
-        res.render('userDashboard', { user: user, loanStatus: loanStatus });  // Render dashboard with user and loan status
+        // Pass flash messages to the view
+        res.render('userDashboard', {
+            user,
+            loans,
+            successMessage: req.flash('success'),
+            errorMessage: req.flash('error'),
+            infoMessage: req.flash('info'),
+        });
+
     } catch (error) {
         console.error("Error fetching user:", error);
         req.flash('error', 'An error occurred while fetching user details.');
-        return res.redirect('/user/login');
+        return res.redirect('/api/user/login');
     }
 });
 
+
 // User Signup (GET)
-app.get('/user/signup', (req, res) => {
+app.get('/api/user/signup', (req, res) => {
     if(!req.session.user) {
         return res.render('userSignup')
     }
@@ -450,7 +473,7 @@ app.get('/user/signup', (req, res) => {
 });
 
 // User Login (GET)
-app.get('/user/login', (req, res) => {
+app.get('/api/user/login', (req, res) => {
     if(!req.session.user) {
         return res.render('userLogin');
     }
@@ -459,19 +482,19 @@ app.get('/user/login', (req, res) => {
 });
 
 // User Signup (POST)
-app.post('/user/signup', async (req, res) => {
+app.post('/api/user/signup', async (req, res) => {
     const { name, email, phone, password, confirmPassword, createdAt, status } = req.body;
 
     if (password !== confirmPassword) {
         req.flash('error', 'Passwords do not match. Please try again.');
-        return res.redirect('/user/signup');  // Redirect back to the signup page
+        return res.redirect('/api/user/signup');  // Redirect back to the signup page
     }
 
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             req.flash('error', 'User already exists. Please use a different email.');
-            return res.redirect('/user/signup');
+            return res.redirect('/api/user/signup');
         }
 
         const hashedPassword = await bcryptjs.hash(password, 10);
@@ -490,29 +513,42 @@ app.post('/user/signup', async (req, res) => {
         req.session.userName = newUser.name; // Assign the correct name from the newly created user object
 
         req.flash('success', 'Registration successful! Please log in.');
-        res.redirect('/user/login');
+        if(req.query.type === 'json') {
+            res.status(200).json({
+                success: true,
+                message: "User registered successfully !"
+            })
+        } else {
+            res.redirect('/api/user/login');
+        }
+        
     } catch (error) {
         console.error("Error registering user:", error);
         req.flash('error', 'An error occurred during registration. Please try again.');
-        res.redirect('/user/signup');
+        res.redirect('/api/user/signup');
     }
 });
 
-// User Login (POST)
-app.post('/user/login', async (req, res) => {
+app.post('/api/user/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
         const existingUser  = await User.findOne({ email });
         if (!existingUser ) {
+            if(req.query.type === 'json') {
+                return res.status(404).json({ success: false, message: 'User not found. Please check your email.' });
+            }
             req.flash('error', 'User  not found. Please check your email.');
-            return res.redirect('/user/login');
+            return res.redirect('/api/user/login');
         }
 
         const isPasswordValid = await bcryptjs.compare(password, existingUser .password);
         if (!isPasswordValid) {
+            if(req.query.type === 'json') {
+                return res.status(401).json({ success: false, message: 'Invalid password. Please try again.' });
+            }
             req.flash('error', 'Invalid password. Please try again.');
-            return res.redirect('/user/login');
+            return res.redirect('/api/user/login');
         }
 
         req.session.userName = existingUser.name;
@@ -530,15 +566,29 @@ app.post('/user/login', async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ id: existingUser ._id, email: existingUser .email }, JWT_SECRET, { expiresIn: '1h' });
-        // res.json({ token }); // Send token to client
+        
+        if(req.query.type === 'json') {
+            return res.status(200).json({
+                success: true,
+                message: "Login",
+                token,
+                user: req.session.user
+            });
+        }
+        
         req.flash('success', 'Login successful!');
         res.redirect('/user/id-verify');
+        
     } catch (error) {
         console.error("Error logging in user:", error);
+        if(req.query.type === 'json') {
+            return res.status(500).json({ success: false, message: 'An error occurred during login. Please try again later.' });
+        }
         req.flash('error', 'An error occurred during login. Please try again later.');
-        return res.redirect('/user/login');
+        return res.redirect('/api/user/login');
     }
 });
+
 
 // Logout (GET)
 app.get('/logout', (req, res) => {
@@ -547,7 +597,7 @@ app.get('/logout', (req, res) => {
             return res.status(500).json({ message: 'Error logging out' });
         }
         res.clearCookie('connect.sid');
-        res.redirect('/user/login');  // Redirect to the homepage after logout
+        res.redirect('/api/user/login');  // Redirect to the homepage after logout
     });
 });
 
@@ -581,9 +631,9 @@ app.get('/user/:id/id-view', async (req, res) => {
 });
 
 //GET   student load routes
-app.get('/apply-loan',async(req, res) => {
+app.get('/api/apply-loan',async(req, res) => {
     if (!req.session.user) {
-        return res.redirect('/user/login');  // Redirect to login if not logged in
+        return res.redirect('/api/user/login');  // Redirect to login if not logged in
     }
 
     const userId = req.session.user.id.toString();
@@ -591,116 +641,31 @@ app.get('/apply-loan',async(req, res) => {
     // res.render('studentLoan')
 })
 
-// app.post('/apply-loan', async (req, res) => {
-//     console.log('req.body: ', req.body);
-//     const { studentName, collegeName, grade, amount, emiPlan } = req.body;
-
-//     // const userId = req.session.user.id.toString();
-    
-//     const userId = req.session.user ? req.session.user.id.toString() : null;
-
-//     // const userId = req.session.userId;
-//     const loggedInUserName = req.session.userName;
-
-//     console.log('Received userId:', userId);
-//     console.log('Received studentName:', studentName);
-//     console.log('Logged-in username:', loggedInUserName);
-
-//     try {
-//         // Validate user ID
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             console.log('User not found in database for userId:', userId);
-//             req.flash('error', 'User not found');
-//             return res.redirect('/apply-loan');
-//         }
-
-//         // Validate username match
-//         // if (loggedInUserName !== studentName) {
-//         //     console.log('Logged-in username and student name mismatch.');
-//         //     req.flash('error', 'Names do not match!');
-//         //     return res.redirect('/apply-loan');
-//         // }
-
-//         // Parse loan amount
-//         const loanAmount = parseFloat(amount);
-//         if (isNaN(loanAmount) || loanAmount <= 0) {
-//             req.flash('error', 'Invalid loan amount');
-//             return res.redirect('/apply-loan');
-//         }
-//         // EMI plan details
-//         const emiDetails = {
-//             '3month': { interest: 0.05, duration: 3 },
-//             '6month': { interest: 0.10, duration: 6 },
-//             '12month': { interest: 0.13, duration: 12 },
-//         };
-
-//         const planDetails = emiDetails[emiPlan];
-//         if (!planDetails) {
-//             req.flash('error', 'Invalid EMI plan selected');
-//             return res.redirect('/apply-loan');
-//         }
-
-//         const interestRate = planDetails.interest;
-//         const duration = planDetails.duration;
-
-//         // Calculate total cost and monthly EMI
-//         const totalCost = loanAmount + loanAmount * interestRate;
-//         const monthlyEMI = totalCost / duration;
-
-//         // Save loan application
-//         const loan = new Loan({
-//             userId,
-//             studentName,
-//             collegeName,
-//             grade,
-//             amount: loanAmount,
-//             emiPlan,
-//             totalCost,
-//             monthlyEMI,
-//         });
-
-//         await loan.save();
-
-//         console.log('Loan application saved successfully:', loan);
-//         req.flash('info', 'Request for Loan sent successfully!')
-//         // req.flash('success', 'Loan application submitted successfully');
-//         // res.redirect('/loan-status', { title: 'Loan Status', loan, userId });
-//         res.redirect(`/loan-status`); //redirect use hota h to prevent from form resubmission
-//     } catch (error) {
-//         console.error('Error during loan application:', error);
-//         req.flash('error', 'An error occurred while processing your loan application.');
-//         res.redirect('/apply-loan');
-//     }
-// });
-
-app.post('/apply-loan', async (req, res) => {
+app.post('/api/apply-loan', async (req, res) => {
     console.log('req.body: ', req.body);
     const { studentName, collegeName, grade, amount, emiPlan } = req.body;
 
-    // Retrieve the userId from the session
-    const userId = req.session.user ? req.session.user.id.toString() : null;
+    // const userId = req.session.user ? req.session.user.id.toString() : null;
+    const userId = req.body.userId || (req.session?.user?.id?.toString() ?? null);
 
     console.log('Received userId:', userId);
     console.log('Received studentName:', studentName);
 
     try {
-        // Validate user ID
         const user = await User.findById(userId);
         if (!user) {
             console.log('User not found in database for userId:', userId);
             req.flash('error', 'User not found');
-            return res.redirect('/apply-loan');
+            return res.redirect('/api/apply-loan');
         }
 
-        // Parse loan amount
         const loanAmount = parseFloat(amount);
         if (isNaN(loanAmount) || loanAmount <= 0) {
             req.flash('error', 'Invalid loan amount');
-            return res.redirect('/apply-loan');
+            return res.redirect('/api/apply-loan');
         }
 
-        // EMI plan details
+        // EMI Plan and Interest Rate Mapping
         const emiDetails = {
             '3month': { interest: 0.05, duration: 3 },
             '6month': { interest: 0.10, duration: 6 },
@@ -710,52 +675,60 @@ app.post('/apply-loan', async (req, res) => {
         const planDetails = emiDetails[emiPlan];
         if (!planDetails) {
             req.flash('error', 'Invalid EMI plan selected');
-            return res.redirect('/apply-loan');
+            return res.redirect('/api/apply-loan');
         }
 
         const interestRate = planDetails.interest;
         const duration = planDetails.duration;
 
-        // Calculate total cost and monthly EMI
-        const totalCost = loanAmount + loanAmount * interestRate;
-        const monthlyEMI = totalCost / duration;
+        const totalCost = Math.round(loanAmount + loanAmount * interestRate);
+        const monthlyEMI = Math.round(totalCost / duration);
 
-        // Generate due dates
-        const createdAt = new Date(); // Use the current date as the loan creation date
+        // Generate Due Dates
+        const createdAt = new Date();
         const dueDates = [];
         for (let i = 1; i <= duration; i++) {
             const dueDate = new Date(createdAt);
             dueDate.setMonth(createdAt.getMonth() + i);
 
             dueDates.push({
-                dueDate: dueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+                dueDate: dueDate.toISOString().split('T')[0],
                 amount: monthlyEMI,
                 status: 'Pending',
             });
         }
 
-        // Save loan application with dueDates
+        // Save Loan with Interest Rate
         const loan = new Loan({
             userId,
             studentName,
             collegeName,
             grade,
             amount: loanAmount,
+            interestRate, // Storing interest rate in DB
             emiPlan,
             totalCost,
             monthlyEMI,
-            dueDates, // Add dueDates to the loan object
+            dueDates,
         });
 
         await loan.save();
 
         console.log('Loan application saved successfully:', loan);
-        req.flash('info', 'Request for Loan sent successfully!');
-        res.redirect(`/loan-status`); // Redirect to prevent form resubmission
+        if(req.query.type === 'json') {
+            res.status(200).json({
+                success: true,
+                message: 'Loan application saved in loan schema !',
+            })
+        } else {
+            req.flash('info', 'Request for Loan sent successfully!');
+            res.redirect(`/loan-status/${loan._id}`);
+        }
+       
     } catch (error) {
         console.error('Error during loan application:', error);
         req.flash('error', 'An error occurred while processing your loan application.');
-        res.redirect('/apply-loan');
+        res.redirect('/api/apply-loan');
     }
 });
 
@@ -834,10 +807,10 @@ app.get('/admin/loans/decline', async (req, res) => {
 });
 
 //GET loan approval/decline
-app.get('/loan-status', async (req, res) => {
+app.get('/loan-status/:loanId', async (req, res) => {
     if (!req.session.user) {
         req.flash('error', 'Please log in to view your loan status.');
-        return res.redirect('/user/login');  // Redirect to login if not logged in
+        return res.redirect('/api/user/login');  // Redirect to login if not logged in
     }
 
     try {
@@ -845,16 +818,23 @@ app.get('/loan-status', async (req, res) => {
         res.set('Cache-Control', 'no-store, must-revalidate');
 
         const userId = req.session.user.id;
+        const loanId = req.params.loanId; // Get loanId from the route parameter
 
         console.log('User ID:', userId);  // Debugging: Log userId
+        console.log('Loan ID:', loanId);  // Debugging: Log loanId
 
-        // Fetch the loan document for the current user
-        const loan = await Loan.findOne({ userId }).lean();
+        if (!loanId) {
+            req.flash('error', 'Invalid loan request.');
+            return res.redirect('/user/dashboard');
+        }
 
-        // If no loan exists, the user has not submitted the loan form yet
-        if (!loan) {
-            req.flash('error', 'Please submit the loan application form first.');
-            return res.redirect('/apply-loan');  // Redirect to apply loan form
+        // Fetch the loan document using loanId
+        const loan = await Loan.findById(loanId).lean();
+
+        // If no loan exists, or if the loan does not belong to the user
+        if (!loan || loan.userId.toString() !== userId) {
+            req.flash('error', 'Loan not found or unauthorized access.');
+            return res.redirect('/user/dashboard');
         }
 
         console.log('Loan data:', loan);  // Debugging: Log the fetched loan data
@@ -866,251 +846,37 @@ app.get('/loan-status', async (req, res) => {
         req.flash('error', 'An error occurred while fetching loan status.');
         res.redirect('/user/dashboard');
     }
-}); 
+});
 
-
-
-
-
-
-                                            //Payments
-
-// app.get('/user/pay-details', async (req, res) => {
-//     // Check if the user is logged in
-//     if (!req.session.user) {
-//         req.flash('error', 'Please log in to view your payment details.');
-//         return res.redirect('/user/login'); // Redirect to login if not logged in
-//     }
-
-//     try {
-//         // Fetch user details
-//         const user = await User.findById(req.session.user.id);
-//         if (!user) {
-//             req.flash('error', 'User not found.');
-//             return res.redirect('/user/login'); // Redirect if user not found
-//         }
-
-//         // Fetch loan details for the user
-//         const loan = await Loan.findOne({ userId: user._id });
-//         if (!loan) {
-//             req.flash('error', 'No loan details found.');
-//             return res.redirect('/user/dashboard'); // Redirect if no loan is found
-//         }
-
-//         // Convert emiPlan from a string like "3month" to an integer
-//         const emiPlan = parseInt(loan.emiPlan.replace(/\D/g, ''), 10); // Removes non-numeric characters and parses as an integer
-//         if (isNaN(emiPlan) || emiPlan <= 0) {
-//             req.flash('error', 'Invalid EMI plan.');
-//             return res.redirect('/user/dashboard'); // Redirect if EMI plan is invalid
-//         }
-
-//         // Parse the createdAt field to calculate due dates
-//         const startDate = new Date(loan.createdAt); // Parse the createdAt field
-//         const nextDueDate = new Date(startDate); // Clone startDate to avoid mutating it
-//         nextDueDate.setMonth(startDate.getMonth() + 1); // Add one month for next due date
-
-//         // Generate due dates and payment statuses based on EMI Plan
-//         const emiDates = [];
-//         for (let i = 1; i <= emiPlan; i++) {
-//             const dueDate = new Date(startDate);
-//             dueDate.setMonth(startDate.getMonth() + i); // Increment month by i
-
-//             // Check if there is a payment request for this EMI (month)
-//             const paymentRequest = await PaymentRequest.findOne({
-//                 loanId: loan._id,
-//                 // emiNumber: i // Assuming you have emiNumber to track each EMI
-//                 createdAt: {
-//                     $gte: new Date(startDate.setMonth(startDate.getMonth() + (i - 1))),
-//                     $lt: new Date(startDate.setMonth(startDate.getMonth() + i)),
-//                 },
-//             });
-
-//             // Set the payment status based on the request or default to Pending
-//             const paymentStatus = paymentRequest ? paymentRequest.paymentStatus : 'Pending';
-
-//             emiDates.push({
-//                 dueDate: dueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
-//                 amount: loan.monthlyEMI,
-//                 status: paymentStatus  // Set the status fetched from PaymentRequest model
-//             });
-//         }
-
-//         const capitalizedName = user.name.charAt(0).toUpperCase() + user.name.slice(1);
-
-//         // Render paymentDetails view with dynamic values
-//         res.render('paymentDetails', {
-//             name: capitalizedName,
-//             totalCost: loan.totalCost,
-//             amountPaid: loan.amountPaid,
-//             remainingBalance: loan.remainingAmount,
-//             emiPlan,  // Pass emiPlan for dynamic rendering
-//             emiDates,  // Pass the generated emiDates for the frontend
-//             monthlyEMI: loan.monthlyEMI,
-//             nextDue: nextDueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
-//         });
-//     } catch (error) {
-//         console.error('Error fetching payment details:', error);
-//         req.flash('error', 'An error occurred while fetching payment details.');
-//         res.redirect('/user/dashboard'); // Redirect on error
-//     }
-// });
-
-// app.get('/user/pay-details', async (req, res) => {
-//     if (!req.session.user) {
-//         req.flash('error', 'Please log in to view your payment details.');
-//         return res.redirect('/user/login');
-//     }
-
-//     try {
-//         const user = await User.findById(req.session.user.id);
-//         if (!user) {
-//             req.flash('error', 'User not found.');
-//             return res.redirect('/user/login');
-//         }
-
-//         const loan = await Loan.findOne({ userId: user._id });
-//         if (!loan) {
-//             req.flash('error', 'No loan details found.');
-//             return res.redirect('/user/dashboard');
-//         }
-
-//         const emiPlan = parseInt(loan.emiPlan.replace(/\D/g, ''), 10);
-//         if (isNaN(emiPlan) || emiPlan <= 0) {
-//             req.flash('error', 'Invalid EMI plan.');
-//             return res.redirect('/user/dashboard');
-//         }
-
-//         const startDate = new Date(loan.createdAt);
-//         const emiDates = [];
-
-//         // Fetch all payment requests for the loan
-//         const paymentRequests = await PaymentRequest.find({ loanId: loan._id });
-
-//         for (let i = 1; i <= emiPlan; i++) {
-//             const dueDate = new Date(startDate);
-//             dueDate.setMonth(startDate.getMonth() + i); // Increment by i months
-
-//             // Find payment request for this EMI
-//             const paymentRequest = paymentRequests.find(pr => {
-//                 const prDate = new Date(pr.createdAt);
-//                 return (
-//                     prDate.getMonth() === dueDate.getMonth() &&
-//                     prDate.getFullYear() === dueDate.getFullYear()
-//                 );
-//             });
-
-//             emiDates.push({
-//                 dueDate: dueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
-//                 amount: loan.monthlyEMI,
-//                 status: paymentRequest ? paymentRequest.paymentStatus : 'Pending',
-//             });
-//         }
-
-//         res.render('paymentDetails', {
-//             name: user.name.charAt(0).toUpperCase() + user.name.slice(1),
-//             totalCost: loan.totalCost,
-//             amountPaid: loan.amountPaid,
-//             remainingBalance: loan.remainingAmount,
-//             emiPlan,
-//             emiDates,
-//             monthlyEMI: loan.monthlyEMI,
-//             nextDue: emiDates.find(emi => emi.status === 'Pending')?.dueDate || 'All Paid',
-//         });
-//     } catch (error) {
-//         console.error('Error fetching payment details:', error);
-//         req.flash('error', 'An error occurred while fetching payment details.');
-//         res.redirect('/user/dashboard');
-//     }
-// });
-
-// app.get('/user/pay-details', async (req, res) => {
-//     if (!req.session.user) {
-//         req.flash('error', 'Please log in to view your payment details.');
-//         return res.redirect('/user/login');
-//     }
-
-//     try {
-//         const user = await User.findById(req.session.user.id);
-//         if (!user) {
-//             req.flash('error', 'User not found.');
-//             return res.redirect('/user/login');
-//         }
-
-//         const loan = await Loan.findOne({ userId: user._id });
-//         if (!loan) {
-//             req.flash('error', 'No loan details found.');
-//             return res.redirect('/user/dashboard');
-//         }
-
-//         const emiPlan = parseInt(loan.emiPlan.replace(/\D/g, ''), 10);
-//         if (isNaN(emiPlan) || emiPlan <= 0) {
-//             req.flash('error', 'Invalid EMI plan.');
-//             return res.redirect('/user/dashboard');
-//         }
-
-//         const startDate = new Date(loan.createdAt);
-//         const emiDates = [];
-
-//         // Fetch all payment requests for the loan
-//         const paymentRequests = await PaymentRequest.find({ loanId: loan._id });
-
-//         for (let i = 1; i <= emiPlan; i++) {
-//             const dueDate = new Date(startDate);
-//             dueDate.setMonth(startDate.getMonth() + i); // Increment by i months
-
-//             // Find payment request for this EMI (matching the expected dueDate's month and year)
-//             const paymentRequest = paymentRequests.find(pr => {
-//                 const prDate = new Date(pr.createdAt); // Convert createdAt to Date
-
-//                 // Compare only the month and year of dueDate and paymentRequest's createdAt
-//                 return (
-//                     prDate.getFullYear() === dueDate.getFullYear() &&  // Match year
-//                     prDate.getMonth() === dueDate.getMonth()           // Match month
-//                 );
-//             });
-
-//             emiDates.push({
-//                 dueDate: dueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
-//                 amount: loan.monthlyEMI,
-//                 status: paymentRequest ? paymentRequest.paymentStatus : 'Pending', // If payment request exists, use its status
-//             });
-//         }
-//         console.log('emi dates are: ', emiDates);
-
-//         res.render('paymentDetails', {
-//             name: user.name.charAt(0).toUpperCase() + user.name.slice(1),
-//             totalCost: loan.totalCost,
-//             amountPaid: loan.amountPaid,
-//             remainingBalance: loan.remainingAmount,
-//             emiPlan,
-//             emiDates,
-//             monthlyEMI: loan.monthlyEMI,
-//             nextDue: emiDates.find(emi => emi.status === 'Pending')?.dueDate || 'All Paid',
-//         });
-//     } catch (error) {
-//         console.error('Error fetching payment details:', error);
-//         req.flash('error', 'An error occurred while fetching payment details.');
-//         res.redirect('/user/dashboard');
-//     }
-// });
 
 app.get('/user/pay-details', async (req, res) => {
     if (!req.session.user) {
         req.flash('error', 'Please log in to view your payment details.');
-        return res.redirect('/user/login');
+        return res.redirect('/api/user/login');
     }
 
     try {
         const user = await User.findById(req.session.user.id);
         if (!user) {
             req.flash('error', 'User not found.');
-            return res.redirect('/user/login');
+            return res.redirect('/api/user/login');
         }
 
-        // Fetch loan with populated dueDates' PaymentRequest details
-        const loan = await Loan.findOne({ userId: user._id }).populate('dueDates.paymentRequestId');
+        // Get loanId from query parameters
+        const { loanId } = req.query;
+        if (!loanId) {
+            req.flash('error', 'Loan ID is required.');
+            return res.redirect('/user/dashboard');
+        }
+
+        // Fetch the specific loan using loanId and userId
+        // const loan = await Loan.findOne({ _id: loanId, userId: user._id }).populate('dueDates.paymentRequestId');
+        const loan = await Loan.findOne({ _id: loanId, userId: user._id })
+        .populate('dueDates.paymentRequestId')
+        .lean({ getters: true });
+
         if (!loan) {
-            req.flash('error', 'No loan details found.');
+            req.flash('error', 'Loan not found.');
             return res.redirect('/user/dashboard');
         }
 
@@ -1123,40 +889,52 @@ app.get('/user/pay-details', async (req, res) => {
         const startDate = new Date(loan.createdAt);
         const emiDates = [];
 
-        // Loop through the EMI plan to construct the details
+        // Construct EMI details
         for (let i = 1; i <= emiPlan; i++) {
             const dueDate = new Date(startDate);
-            dueDate.setMonth(startDate.getMonth() + i); // Increment by i months
+            dueDate.setMonth(startDate.getMonth() + i);
 
-            // Find the corresponding due date's PaymentRequest
             const dueDateEntry = loan.dueDates.find(due => {
                 const dueDateObj = new Date(due.dueDate);
                 return (
-                    dueDateObj.getFullYear() === dueDate.getFullYear() && // Match year
-                    dueDateObj.getMonth() === dueDate.getMonth()          // Match month
+                    dueDateObj.getFullYear() === dueDate.getFullYear() &&
+                    dueDateObj.getMonth() === dueDate.getMonth()
                 );
             });
 
             emiDates.push({
-                dueDate: dueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+                dueDate: dueDate.toISOString().split('T')[0],
                 amount: loan.monthlyEMI,
-                status: dueDateEntry?.status || 'Pending', // Use due date's status
-                paymentDetails: dueDateEntry?.paymentRequestId || null, // Include PaymentRequest details if available
+                status: dueDateEntry?.status || 'Pending',
+                paymentDetails: dueDateEntry?.paymentRequestId || null,
             });
         }
 
-        console.log('emi dates are: ', emiDates);
+        console.log('EMI Dates:', emiDates);
 
+        // res.render('paymentDetails', {
+        //     loan: loan,
+        //     name: user.name.charAt(0).toUpperCase() + user.name.slice(1),
+        //     totalCost: loan.totalCost,
+        //     amountPaid: loan.amountPaid,
+        //     remainingBalance: loan.remainingAmount,
+        //     emiPlan,
+        //     emiDates,
+        //     monthlyEMI: loan.monthlyEMI,
+        //     nextDue: emiDates.find(emi => emi.status === 'Pending')?.dueDate || 'All Paid',
+        // });
         res.render('paymentDetails', {
+            loan: loan,
             name: user.name.charAt(0).toUpperCase() + user.name.slice(1),
-            totalCost: loan.totalCost,
-            amountPaid: loan.amountPaid,
-            remainingBalance: loan.remainingAmount,
+            totalCost: loan.totalCost.toFixed(2),
+            amountPaid: loan.amountPaid ? loan.amountPaid.toFixed(2) : '0.00',
+            remainingBalance: loan.remainingAmount ? loan.remainingAmount.toFixed(2) : '0.00',
             emiPlan,
             emiDates,
-            monthlyEMI: loan.monthlyEMI,
+            monthlyEMI: loan.monthlyEMI.toFixed(2),
             nextDue: emiDates.find(emi => emi.status === 'Pending')?.dueDate || 'All Paid',
         });
+        
     } catch (error) {
         console.error('Error fetching payment details:', error);
         req.flash('error', 'An error occurred while fetching payment details.');
@@ -1167,12 +945,12 @@ app.get('/user/pay-details', async (req, res) => {
 
 app.get('/user/pay-method', async (req, res) => {
     // Log route access
-    console.log('Route /user/pay-method accessed');
+    console.log('Route /user/pay-method accessed');    
 
     // Check if the user is logged in
     if (!req.session.user) {
         req.flash('error', 'Please log in to view your payment method.');
-        return res.redirect('/user/login'); // Redirect to login if not logged in
+        return res.redirect('/api/user/login'); // Redirect to login if not logged in
     }
 
     try {
@@ -1183,8 +961,11 @@ app.get('/user/pay-method', async (req, res) => {
             return res.redirect('/user/login'); // Redirect if user not found
         }
 
-        // Fetch loan details to get the amount due for the current month
-        const loan = await Loan.findOne({ userId: user._id });
+        // Fetch loan details using loanId from the query parameters
+        const loanId = req.query.loanId;
+        console.log('loan id in get pay-method:' , loanId);
+        
+        const loan = await Loan.findById(loanId); // Find loan by loanId
         if (!loan) {
             req.flash('error', 'Loan details not found.');
             return res.redirect('/user/dashboard'); // Redirect if loan details are not found
@@ -1200,6 +981,7 @@ app.get('/user/pay-method', async (req, res) => {
 
         // Render the payment method page with the required data
         res.render('paymentMethod', {
+            loan: loan,
             name: capitalizedName,
             amountDue: amountDue,
             totalCost: loan.totalCost,         // Replace with the actual property from your Loan model
@@ -1217,166 +999,65 @@ app.get('/user/pay-method', async (req, res) => {
     }
 });
 
-// app.post('/user/pay-method', async (req, res) => {
-//     try {
-//         const { paymentMethod, amount, referenceNo, address } = req.body;
-//         const userId = req.session.user.id;
-
-//         // Parse the amount to a number
-//         const paymentAmount = parseFloat(amount);
-
-//         // Fetch the loan and related data
-//         const loan = await Loan.findOne({ userId });
-
-//         if (!loan) {
-//             req.flash('error', 'No loan record found for your account.');
-//             return res.redirect('/user/pay-details');
-//         }
-
-//         // Validate payment amount
-//         // if (isNaN(paymentAmount) || paymentAmount <= 0 || paymentAmount > loan.remainingAmount) {
-//         //     req.flash('error', 'Invalid payment amount. Please enter a valid amount between 1 and ' + loan.remainingAmount);
-//         //     return res.redirect('/user/pay-details');
-//         // }
-
-//         console.log('Update loan payment details');
-//         // Update loan payment details
-//         loan.amountPaid += paymentAmount;
-//         loan.remainingAmount -= paymentAmount;
-
-//         // Increment monthsPaid when payment is made
-//         loan.monthsPaid += 1;
-
-//         if (loan.remainingAmount === 0) {
-//             loan.paymentStatus = 'Completed'; // Mark loan payment as completed
-//         }
-
-//         await loan.save();
-
-//         // Create a new PaymentRequest
-//         const paymentRequest = new PaymentRequest({
-//             paymentMethod,
-//             amount: paymentAmount,
-//             referenceNo: paymentMethod === 'Bank Transfer' ? referenceNo : undefined,
-//             address: paymentMethod === 'Collect Cash' ? address : undefined,
-//             loanId: loan._id,
-//             userId: userId,
-//             bankName: paymentMethod === 'Bank Transfer' ? req.body.bankName: null,
-//             // dueDate: "2025-10-10",
-//         });
-
-//         await paymentRequest.save();
-
-//         req.flash('success', 'Payment processed successfully!');
-//         res.redirect('/user/pay-details');
-//     } catch (error) {
-//         console.error('Error processing payment:', error);
-//         req.flash('error', 'An error occurred while processing your payment.');
-//         res.redirect('/user/pay-details');
-//     }
-// });
-
-// app.post('/user/pay-method', async (req, res) => {
-//     try {
-//         const { paymentMethod, amount, referenceNo, address } = req.body;
-//         const userId = req.session.user.id;
-
-//         // Parse the amount to a number
-//         const paymentAmount = parseFloat(amount);
-
-//         console.log('paymentAmount:', paymentAmount);
-        
-
-//         // Fetch the loan and related data
-//         const loan = await Loan.findOne({ userId });
-
-//         if (!loan) {
-//             req.flash('error', 'No loan record found for your account.');
-//             return res.redirect('/user/pay-details');
-//         }
-
-//         // Validate payment amount
-//         if (isNaN(paymentAmount) || paymentAmount <= 0 || paymentAmount > loan.remainingAmount) {
-//             req.flash('error', 'Invalid payment amount');
-//             return res.redirect('/user/pay-details');
-//         }
-
-//         // Create a new PaymentRequest
-//         const paymentRequest = new PaymentRequest({
-//             paymentMethod,
-//             amount: paymentAmount,
-//             referenceNo: paymentMethod === 'Bank Transfer' ? referenceNo : undefined,
-//             address: paymentMethod === 'Collect Cash' ? address : undefined,
-//             loanId: loan._id,
-//             userId: userId,
-//             bankName: paymentMethod === 'Bank Transfer' ? req.body.bankName : null,
-//             paymentStatus: 'Pending', // Set as Pending by default
-//         });
-
-//         await paymentRequest.save();
-
-//         req.flash('success', 'Payment request submitted! Awaiting admin approval.');
-//         res.redirect('/user/pay-details');
-//     } catch (error) {
-//         console.error('Error processing payment:', error);
-//         req.flash('error', 'An error occurred while processing your payment.');
-//         res.redirect('/user/pay-details');
-//     }
-// });
 
 app.post('/user/pay-method', async (req, res) => {
     try {
-        const { paymentMethod, amount, referenceNo, address } = req.body;
-        const userId = req.session.user.id;
+        console.log("Received Request Body:", req.body); // Debugging line
+
+        const { loanId, paymentMethod, amount, referenceNo, address, bankName } = req.body;
+        const userId = req.session.user?.id;
+
+        if (!loanId) {
+            req.flash('error', 'Loan ID is required.');
+            return res.redirect(`/user/pay-details?loanId=${loanId || ''}`);
+        }
+
+        // Fetch the loan using both loanId and userId
+        const loan = await Loan.findOne({ _id: loanId, userId });
+
+        if (!loan) {
+            req.flash('error', 'Invalid loan record.');
+            return res.redirect(`/user/pay-details?loanId=${loanId}`);
+        }
+
+        console.log('loan id:', loan._id);
+
+        // Validate remaining amount check
+        if (loan.remainingAmount <= 0) {
+            req.flash('error', 'Loan is already paid off or overpaid. No further payments can be made.');
+            return res.redirect(`/user/pay-details?loanId=${loanId}`);
+        }
 
         // Parse the amount to a number
         const paymentAmount = parseFloat(amount);
-
-        console.log('paymentAmount:', paymentAmount);
-
-        // Fetch the loan and related data
-        const loan = await Loan.findOne({ userId });
-
-        if (!loan) {
-            req.flash('error', 'No loan record found for your account.');
-            return res.redirect('/user/pay-details');
-        }
-
-        // Validate remaining amount check: ensure it's not less than 0
-        if (loan.remainingAmount <= 0) {
-            req.flash('error', 'Loan is already paid off or overpaid. No further payments can be made.');
-            return res.redirect('/user/pay-details');
-        }
-
-        // Validate payment amount
+        
         if (isNaN(paymentAmount) || paymentAmount <= 0 || paymentAmount > loan.remainingAmount) {
-            req.flash('error', 'Invalid payment amount');
-            return res.redirect('/user/pay-details');
+            req.flash('error', 'Invalid payment amount.');
+            return res.redirect(`/user/pay-details?loanId=${loanId}`);
         }
 
         // Create a new PaymentRequest
         const paymentRequest = new PaymentRequest({
+            loanId,
+            userId,
             paymentMethod,
             amount: paymentAmount,
             referenceNo: paymentMethod === 'Bank Transfer' ? referenceNo : undefined,
             address: paymentMethod === 'Collect Cash' ? address : undefined,
-            loanId: loan._id,
-            userId: userId,
-            bankName: paymentMethod === 'Bank Transfer' ? req.body.bankName : null,
+            bankName: paymentMethod === 'Bank Transfer' ? bankName : null,
             paymentStatus: 'Pending', // Set as Pending by default
         });
 
         await paymentRequest.save();
 
         req.flash('success', 'Payment request submitted! Awaiting admin approval.');
-        res.redirect('/user/pay-details');
+        res.redirect(`/user/pay-details?loanId=${loanId}`); // Pass loanId to pay-details page
     } catch (error) {
         console.error('Error processing payment:', error);
         req.flash('error', 'An error occurred while processing your payment.');
-        res.redirect('/user/pay-details');
+        res.redirect(`/user/pay-details?loanId=${req.body.loanId || ''}`);
     }
 });
-
 
 app.get('/admin/payment-requests', async (req, res) => {
     if (!req.session.admin) {
@@ -1521,100 +1202,6 @@ app.post('/admin/payments/decline/:id', async (req, res) => {
     }
 });
 
-// app.post('/admin/payments/decline/:id', async (req, res) => {
-//     const paymentRequestId = req.params.id;
-
-//     try {
-//         // Find the payment request
-//         const paymentRequest = await PaymentRequest.findById(paymentRequestId);
-//         if (!paymentRequest) {
-//             return res.status(404).send('Payment request not found');
-//         }
-
-//         // Update payment request status
-//         paymentRequest.paymentStatus = 'Declined';
-//         await paymentRequest.save();
-
-//         // Now update the related loan due dates
-//         const loan = await Loan.findById(paymentRequest.loanId);
-//         if (!loan) {
-//             return res.status(404).send('Loan not found');
-//         }
-
-//         // Find the due date that is linked to the declined PaymentRequest
-//         const declinedDueDate = loan.dueDates.find(dueDate => dueDate.paymentRequestId?.toString() === paymentRequestId);
-
-//         if (declinedDueDate) {
-//             // Reset the due date status to "Pending"
-//             declinedDueDate.status = 'Declined';
-//             declinedDueDate.paymentRequestId = undefined; // Remove the PaymentRequest reference
-//             await loan.save();
-//         }
-
-//         // Redirect after processing
-//         res.redirect('/admin/payment-requests');
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server error');
-//     }
-// });
-
-
-//to backfill all due dates
-// app.get('/admin/backfill-due-dates', async (req, res) => {
-//     try {
-//         const loans = await Loan.find();
-//         for (const loan of loans) {
-//             if (!loan.dueDates || loan.dueDates.length === 0) {
-//                 console.log('Processing Loan ID:', loan._id);
-                
-//                 const startDate = new Date(loan.createdAt); // Use loan's createdAt field as the base date
-//                 if (isNaN(startDate)) {
-//                     console.error(`Invalid createdAt for Loan ID: ${loan._id}`);
-//                     continue;
-//                 }
-                
-//                 loan.dueDates = [];
-
-//                 // Parse EMI plan to get the number of months
-//                 const emiPlanMonths = parseInt(loan.emiPlan.replace(/\D/g, ''), 10);
-//                 console.log('emiPlanMonths:', emiPlanMonths); // Check EMI plan value
-//                 if (isNaN(emiPlanMonths)) {
-//                     console.error(`Invalid EMI plan for Loan ID: ${loan._id}`);
-//                     continue;
-//                 }
-
-//                 // Generate due dates for the EMI plan
-//                 for (let i = 1; i <= emiPlanMonths; i++) {
-//                     const dueDate = new Date(startDate);
-//                     dueDate.setMonth(startDate.getMonth() + i);
-                    
-//                     const formattedDueDate = dueDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-//                     loan.dueDates.push({
-//                         dueDate: formattedDueDate,
-//                         amount: loan.monthlyEMI,
-//                         status: 'Pending',
-//                     });
-//                 }
-
-//                 // Ensure dueDates is populated
-//                 if (loan.dueDates.length > 0) {
-//                     await loan.save();
-//                     console.log(`Updated dueDates for Loan ID: ${loan._id}`);
-//                 } else {
-//                     console.log(`No due dates to update for Loan ID: ${loan._id}`);
-//                 }
-//             }
-//         }
-
-//         console.log('All loans updated successfully.');
-//         res.send('Due dates updated successfully');
-//     } catch (error) {
-//         console.error('Error updating loans:', error);
-//         res.status(500).send('Error updating loans');
-//     }
-// });
-
 // 404 Error Page (for any unknown route)
 app.use((req, res) => {
     res.status(404).render('404_Page');
@@ -1623,5 +1210,6 @@ app.use((req, res) => {
 app.listen(port, () => {
     console.log(`
 Admin panel: http://localhost:${port}/admin/login
-User panel: http://localhost:${port}/user/login`);
+User panel: http://localhost:${port}/api/user/login
+Home page: http://localhost:${port}/ `);
 });

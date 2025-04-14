@@ -5,16 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>Student Loan Application</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        .cantora-one-regular {
+            font-family: "Cantora One", serif;
+            font-weight: 600;
+            font-style: normal;
+        } 
+        body {
+            font-family: "Roboto", serif;;
+        }
+        .color {
+            color: #c31432;
+        }
+        .bg-color {
+            background-color: #c31432;
+        }
+        input:focus {
+            border-color: #d3a3a9;
+            border-width: 1.5px;  /* Ensures the border is visible */
+            outline: none;  /* Removes the default blue outline */
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen px-4 relative">
 
     <!-- Back Button -->
-    <a href="/user/dashboard" class="absolute top-4 right-4 bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+    <!-- <a href="/user/dashboard" class="absolute top-4 right-4 bg-color text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-opacity-50">
         Back to Dashboard
-    </a>
+    </a> -->
 
     <div class="w-full max-w-md bg-white p-6 border border-gray-200 rounded-lg shadow-lg">
-        <h1 class="text-xl font-bold text-center text-gray-800 mb-4">Student Loan Application</h1>
+        <h1 class="text-2xl cantora-one-regular font-bold text-center color text-gray-800 mb-4">Enter Details</h1>
         <!-- Flash Messages -->
     <% if (successMessage && successMessage.length > 0) { %>
         <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
@@ -29,10 +57,7 @@
     <% } %>
 
     <% if (infoMessage && infoMessage.length > 0) { %>
-        <div 
-            class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" 
-            role="alert"
-        >
+        <div class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" role="alert">
             <%= infoMessage %>
         </div>
     <% } %>
@@ -40,7 +65,7 @@
         <!-- Flash Messages -->
         <div id="flash-message" class="hidden mb-4 p-4 rounded-lg"></div>
 
-        <form id="loan-form" action="/apply-loan" method="POST" class="space-y-4">
+        <form id="loan-form" action="/api/apply-loan" method="POST" class="space-y-4">
             <!-- Hidden field for userId -->
             <!-- <input type="hidden" name="userId" value="674413fae1430a4937418e4b"> -->
             <input type="hidden" name="userId" value="<%= userId %>">
@@ -49,33 +74,33 @@
             <div>
                 <label for="student-name" class="block text-gray-700 font-semibold">Student Name</label>
                 <input type="text" id="student-name" name="studentName" required
-                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none ">
             </div>
 
             <!-- College Name -->
             <div>
                 <label for="college-name" class="block text-gray-700 font-semibold">School/College</label>
                 <input type="text" id="college-name" name="collegeName" required
-                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none ">
             </div>
 
             <!-- Grade -->
             <div>
                 <label for="grade" class="block text-gray-700 font-semibold">Grade</label>
                 <input type="text" id="grade" name="grade" required
-                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none ">
             </div>
 
             <!-- Amount -->
             <div>
                 <label for="amount" class="block text-gray-700 font-semibold">Amount</label>
                 <input type="number" id="amount" name="amount" required
-                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none ">
             </div>
 
             <h2 class="text-lg font-semibold mb-6">Choose EMI Plan</h2>
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
-                <thead class="bg-blue-500">
+                <thead class="bg-color">
                     <tr>
                         <th class="px-6 py-4 text-left text-sm font-medium text-white">EMI Plan</th>
                         <th class="px-6 py-4 text-left text-sm font-medium text-white">Interest</th>
@@ -84,28 +109,28 @@
                 </thead>
                 <tbody>
                     <tr class="border-t border-gray-200">
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td class="px-1 py-4 text-sm font-medium text-gray-900">
                             <input type="checkbox" id="emi-3month" name="emiPlan" value="3month">
                             3 Months
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">5%</td>
-                        <td id="total-3month" class="px-6 py-4 text-sm text-gray-900"></td>
+                        <td class="px-1 py-4 text-sm text-gray-700">5%</td>
+                        <td id="total-3month" class="px-1 py-4 text-sm text-gray-900"></td>
                     </tr>
                     <tr class="border-t border-gray-200">
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td class="px-1 py-4 text-sm font-medium text-gray-900">
                             <input type="checkbox" id="emi-6month" name="emiPlan" value="6month">
                             6 Months
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">10%</td>
-                        <td id="total-6month" class="px-6 py-4 text-sm text-gray-900"></td>
+                        <td class="px-1 py-4 text-sm text-gray-700">10%</td>
+                        <td id="total-6month" class="px-1 py-4 text-sm text-gray-900"></td>
                     </tr>
                     <tr class="border-t border-gray-200">
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900">
+                        <td class="px-1 py-4 text-sm font-medium text-gray-900">
                             <input type="checkbox" id="emi-12month" name="emiPlan" value="12month">
                             12 Months
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">13%</td>
-                        <td id="total-12month" class="px-6 py-4 text-sm text-gray-900"></td>
+                        <td class="px-1 py-4 text-sm text-gray-700">13%</td>
+                        <td id="total-12month" class="px-1 py-4 text-sm text-gray-900"></td>
                     </tr>
                 </tbody>
             </table>
@@ -113,7 +138,7 @@
             <!-- Submit Button -->
             <div class="flex justify-center">
                 <button type="submit"
-                    class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+                    class="bg-color text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 transform transition duration-300 hover:scale-105 focus:outline-none">
                     Submit
                 </button>
             </div>

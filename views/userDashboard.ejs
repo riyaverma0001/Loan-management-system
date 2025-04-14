@@ -5,93 +5,272 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.0/dist/tailwind.min.css" rel="stylesheet">
     <title>User Dashboard</title>
-</head>
-<body class="bg-gray-100">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&display=swap" rel="stylesheet">
 
-    <!-- Navbar -->
-    <nav class="bg-blue-500 text-white py-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">User Dashboard</h1>
-            <a href="/logout" 
-               class="bg-red-500 px-4 py-2 rounded hover:bg-red-600 text-white font-medium">
-               Logout
-            </a>
-        </div>
-    </nav>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<style>
+    .cantora-one-regular {
+        font-family: "Cantora One", serif;
+        font-weight: 600;
+        font-style: normal;
+    }
+    
+    body {
+        font-family: "Roboto", serif;
+        
+    }
+
+    .color {
+        color: #c31432;
+    }
+
+    .bg-color {
+        background-color: #c31432;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .max-w-lg {
+            max-width: 90%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0.5rem;
+        }
+
+        h1, h3 {
+            font-size: 1.5rem;
+        }
+
+        p {
+            font-size: 1rem;
+        }
+
+        a {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flex {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .absolute {
+            position: relative;
+            text-align: right;
+            margin-top: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .max-w-md {
+            width: 100%;
+            
+        }
+        h1{
+            /* border: 1px solid black; */
+            width: 62%;
+        }
+        h1, h3 {
+            font-size: 1.25rem;
+        }
+
+        p {
+            font-size: 0.875rem;
+        }
+
+        .apply{
+            padding-left: 2px;
+            padding-right: 2px;
+            font-size: 10px;
+            width: 110px;
+        }
+
+        a {
+            width: 50%;
+            
+        }
+        .links {
+            /* border: 1px solid black; */
+            width: 100%;
+            display: flex;
+            gap: 1px;
+            justify-content: center; /* Optional: Centers buttons */
+            align-items: center; 
+        }
+
+        .welcome {
+            /* border: 2px solid black; */
+            display: flex;
+            flex-direction: row;
+            
+        }
+        .logout {
+            /* border: 3px solid black; */
+            width: 50px;
+            position: absolute;
+            right: 48px;
+            
+        }
+
+        .text-sm {
+            font-size: 0.75rem;
+        }
+    }
+
+    /* Consistent Button Styling */
+    .btn {
+        width: 100%; /* Full width on mobile */
+        padding: 0.75rem;
+        text-align: center;
+        display: inline-block;
+        border-radius: 0.5rem;
+        font-weight: bold;
+    }
+
+    /* Colors */
+    .btn-red {
+        background-color: #c31432;
+        color: white;
+    }
+
+    .btn-outline-red {
+        border: 2px solid #c31432;
+        color: #c31432;
+        background: white;
+    }
+
+    /* Hover Effects */
+    .btn:hover {
+        opacity: 0.9;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 768px) {
+        .btn {
+            width: 48%; /* Set equal width on tablets and above */
+        }
+    }
+</style>
+
+</head>
+<body class="bg-gray-100 relative">
+
+    
 
     <!-- Flash Messages -->
-    <% if (successMessage && successMessage.length > 0) { %>
-        <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
-            <%= successMessage %>
-        </div>
-    <% } %>
+    <div class="container mx-auto px-4">
+        <% if (successMessage && successMessage.length > 0) { %>
+            <div class="p-4 text-green-700 bg-green-100 rounded-lg shadow">
+                <%= successMessage %>
+            </div>
+        <% } %>
 
-    <% if (errorMessage && errorMessage.length > 0) { %>
-        <div class="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-            <%= errorMessage %>
-        </div>
-    <% } %>
+        <% if (errorMessage && errorMessage.length > 0) { %>
+            <div class="p-4 text-red-700 bg-red-100 rounded-lg shadow">
+                <%= errorMessage %>
+            </div>
+        <% } %>
 
-    <!-- Dashboard Content -->
-    <div class="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
-        <h2 class="text-3xl font-bold text-blue-600 mb-6">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1) %>!</h2>
-
-        <!-- User Details -->
-        <div class="space-y-4">
-            <p class="text-lg"><strong>Email:</strong> <%= user.email %></p>
-            <p class="text-lg"><strong>Phone:</strong> <%= user.phone %></p>
-            <p class="text-lg"><strong>Status:</strong> <%= user.status %></p>
-            <p class="text-lg"><strong>Document Type:</strong> <%= user.documentType %></p>
-
-            <!-- Display KYC Status -->
-            <p class="text-lg">
-                <strong>KYC Status:</strong> 
-                <span class="<%= user.kycStatus === 'approved' ? 'text-green-600' : 'text-red-600' %> font-semibold">
-                    <%= user.kycStatus %>
-                </span>
-            </p>
-            
-            <!-- Display Loan Status -->
-            <p class="text-lg">
-                <strong>Loan Status:</strong> 
-                <span class="<%= loanStatus === 'Approved' ? 'text-green-600' : loanStatus === 'Rejected' ? 'text-red-600' : 'text-yellow-600' %> font-semibold">
-                    <%= loanStatus %>
-                </span>
-            </p>
-
-            <p class="text-lg"><strong>Account Created At:</strong> <%= user.createdAt.toLocaleString() %></p>
-        </div>
-
+        <% if (infoMessage && infoMessage.length > 0) { %>
+            <div class="p-4 text-blue-700 bg-blue-100 rounded-lg shadow">
+                <%= infoMessage %>
+            </div>
+        <% } %>
     </div>
 
-    <!-- Display Loan and KYC Approval Message -->
-    <% if (user.kycStatus === 'approved' && user.loanStatus === 'approved') { %>
-        <div class="mt-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
-            Loan and KYC Status both Approved!
-        </div>
-    <% } %>
-
-    <!-- Button to View Uploaded Document, only visible if KYC is approved -->
-    <% if (user.kycStatus === 'approved') { %>
-        <!-- Apply for Loan Button -->
-        <a href="/apply-loan" 
-           class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 mt-4 block text-center">
-           Apply for Loan
-        </a>
-        <a href="/user/<%= user._id %>/id-view" 
-           class="inline-block bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-green-600 transform transition duration-300 hover:scale-105 mt-4 block text-center"
-           target="_blank">
-           View Uploaded Document
-        </a>
-    <% } %>
-
-    <% if (loanStatus === 'Approved') { %>
-        <!-- Pay Button -->
-    <a href="/user/pay-details" class="inline-block bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-600 transform transition duration-300 hover:scale-105 mt-4 block text-center">
-        Pay
-    </a>
-    <% } %>
+    <!-- Dashboard Content -->
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-md b max-w-lg mx-auto">
+        <!-- User Welcome and Logout -->
+<div class="welcome flex justify-between items-center bg-white rounded-lg max-w-lg mb-4">
+    <h1 class="text-2xl cantora-one-regular font-bold color">Welcome, <%= user.name.charAt(0).toUpperCase() + user.name.slice(1) %>!</h1>
     
-<script src="../keepAlive.js"></script>
+    <a href="/logout" class=" text-white text-sm transition font-medium logout" >
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#c31432"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>
+    </a>
+</div>
+
+        <!-- User Details -->
+        <div class="flex flex-col text-lg mb-4 p-2">
+            <p class="mb-1"><strong>Email:</strong> <%= user.email %></p>
+            <p class="mb-1"><strong>Phone:</strong> <%= user.phone %></p>
+            <p class="mb-1"><strong>Status:</strong> <%= user.status.charAt(0).toUpperCase() + user.status.slice(1) %></p>
+            <p class="mb-1"><strong>Document Type:</strong> 
+                <%= user.documentType.replace(/([A-Z])/g, ' $1').trim().charAt(0).toUpperCase() + user.documentType.replace(/([A-Z])/g, ' $1').trim().slice(1) %>
+            </p>
+            
+            <p class="mb-1">
+                <strong>KYC Status:</strong> 
+                <span class="<%= user.kycStatus === 'approved' ? 'text-green-600' : 'text-red-600' %> font-semibold">
+                    <%= user.kycStatus.charAt(0).toUpperCase() + user.kycStatus.slice(1) %>
+                </span>
+            </p>
+            <p class="mb-1"><strong>Account Created:</strong> <%= new Date(user.createdAt).toLocaleString() %></p>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto mt-8 p-6 text-center bg-white rounded-lg shadow-lg max-w-lg mx-auto">
+    <h3 class="text-2xl cantora-one-regular font-bold color mb-4" >Your Loan Applications</h3>
+
+    <% if (loans.length > 0) { %>
+        <div class="space-y-4 p-2">
+            <% loans.forEach((loan, index) => { %>
+                <div class="bg-gray-100 p-4 rounded-lg shadow">
+                    
+                    <!-- <p class="font-bold text-lg">Loan ID: <span class="text-gray-700 text-blue-700"><%= loan._id %></span></p> -->
+                    <input type="hidden" name="loanId" value="<%= loan._id %>">
+                    <p class="mt-2 "><strong>Loan Amount:</strong> ₹<%= loan.amount %></p>
+                    <p class="mt-2 "><strong>Monthly EMI:</strong> ₹<%= loan.monthlyEMI%></p>
+                    
+                    <p class="mt-2">
+                        <strong>Status:</strong> 
+                        <span class="<%= loan.status === 'Approved' ? 'text-green-600' : loan.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600' %> font-semibold">
+                            <%= loan.status %>
+                        </span>
+                    </p>
+                    <p class="mt-2"><strong>Applied On:</strong> <%= new Date(loan.createdAt).toLocaleDateString() %></p>
+
+                    <!-- Actions -->
+                    <div class="mt-4">
+                        <% if (loan.status === 'Approved') { %>
+                            <a href="/user/pay-details?loanId=<%= loan._id %>" 
+                               class="bg-color text-white px-8 py-2 rounded-md hover:bg-red-600 transition text-sm font-medium">
+                               Pay
+                            </a>
+                        <% } else { %>
+                            <span class="text-gray-500 text-xs">N/A</span>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <p class="text-lg text-gray-600 mt-4">No loan applications found.</p>
+    <% } %>
+
+        <!-- Buttons -->
+        <div class="flex mt-4 links">
+            <a href="/api/apply-loan" 
+               class="bg-color text-white font-normal text-sm py-2 px-4 rounded-lg shadow-lg hover:bg-red-600 transform transition duration-300 hover:scale-105 text-center apply" >
+               Apply for Loan
+            </a>
+
+            <% if (user.kycStatus === 'approved') { %>
+                <a href="/user/<%= user._id %>/id-view" 
+                   class="color text-white font-normal text-sm py-2 px-2 transform transition duration-300 hover:scale-105  text-center" style="width: 200px;" >
+                   View Uploaded Document
+                </a>
+            <% } %>
+        </div>
+</div>
+    <script src="../keepAlive.js"></script>
 </body>
 </html>

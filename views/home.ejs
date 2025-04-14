@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cantora+One&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: "Roboto", serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+       
+        .cantora-one-regular {
+            font-family: "Cantora One", serif;
+            font-weight: 500;
+            font-style: normal;
+        }  
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            min-height: 85vh;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center; /* Centers everything */
+        }
+        
+        .logo {
+            max-width: 150px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .color {
+            color: #c31432;
+        }
+
+        .btn {
+            display: block;
+            width: 60%;
+            padding: 10px;
+            margin: 10px auto;
+            color: #c31432;
+            background-color: transparent;
+            border: 2px solid #c31432;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #c31432;
+            color: white;
+        }
+
+        /* Mobile View */
+        @media (max-width: 480px) {
+            body {
+                height: 85vh;
+            }
+            .container {
+                width: 95%;
+                min-height: 95vh;
+            }
+            .btn {
+                width: 70%;
+            }
+        }
+
+        /* Laptop View */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 450px;
+                min-height: 70vh;
+                padding: 30px;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="cantora-one-regular text-3xl">Welcome to the App</h2>
+        <p>Manage your loans efficiently with our platform.</p>
+        <img src="/images/PayOmanLogo.png" alt="PayOman Logo" class="logo">
+        
+        <a href="/api/user/signup" class="btn" style="background-color: #c31432; color: white; border: none;">Register</a>
+        <a href="/api/user/login" class="btn">Login</a>
+    </div>
+</body>
+</html>
